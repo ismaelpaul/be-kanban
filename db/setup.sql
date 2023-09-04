@@ -1,0 +1,5 @@
+DROP DATABASE IF EXISTS kanban_test;
+DROP DATABASE IF EXISTS kanban;
+
+CREATE DATABASE kanban_test;
+CREATE DATABASE kanban;
