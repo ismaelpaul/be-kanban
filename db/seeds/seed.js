@@ -46,12 +46,24 @@ const seed = async ({ data }) => {
     created_at TIMESTAMP DEFAULT NOW()
   );`);
 
-	const formattedData = formatData(data);
+	// Insert data into the 'boards' table
+	const newUserQuery = `
+  INSERT INTO users (first_name, last_name, email, password)
+  VALUES ($1, $2, $3, $4)
+  RETURNING *;
+`;
+
+	const newUserValues = ['Admin', 'Admin', 'admin@admin.com', 'password']; // Replace with your desired user data
+
+	const newUserResult = await db.query(newUserQuery, newUserValues);
+	const userId = newUserResult.rows[0].user_id;
 
 	// Format and insert data into the 'boards' table
-	const boardsData = formattedData.boards.map((board) => [board.name]);
+	const formattedData = formatData(data);
+
+	const boardsData = formattedData.boards.map((board) => [board.name, userId]);
 	const boardsInsertQuery = format(
-		'INSERT INTO boards (name) VALUES %L RETURNING *',
+		'INSERT INTO boards (name, user_id) VALUES %L RETURNING *',
 		boardsData
 	);
 	const boardRows = await db
