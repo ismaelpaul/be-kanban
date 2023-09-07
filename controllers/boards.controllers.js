@@ -1,4 +1,8 @@
-const { selectBoards, selectBoardsById } = require('../models/boards.models');
+const {
+	selectBoards,
+	selectBoardsById,
+	selectColumnsByBoardId,
+} = require('../models/boards.models');
 
 exports.getBoards = (req, res, next) => {
 	selectBoards()
@@ -13,6 +17,16 @@ exports.getBoardById = (req, res, next) => {
 	selectBoardsById(board_id)
 		.then((board) => {
 			res.status(200).send({ board });
+		})
+		.catch(next);
+};
+
+exports.getColumnsByBoardId = (req, res, next) => {
+	const { board_id } = req.params;
+
+	selectColumnsByBoardId(board_id)
+		.then((columns) => {
+			res.status(200).send({ columns });
 		})
 		.catch(next);
 };
