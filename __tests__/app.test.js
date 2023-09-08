@@ -110,3 +110,27 @@ describe('/api/users', () => {
 		});
 	});
 });
+
+describe('/api/tasks', () => {
+	describe('GET', () => {
+		test('200: responds with an array of tasks objects', () => {
+			return request(app)
+				.get('/api/tasks')
+				.expect(200)
+				.then((response) => {
+					const allTasks = response.body.tasks;
+					expect(typeof response.body).toBe('object');
+					expect(Array.isArray(allTasks)).toBe(true);
+					expect(allTasks.length > 0).toBe(true);
+					allTasks.forEach((task) => {
+						expect(task).toHaveProperty('task_id', expect.any(Number));
+						expect(task).toHaveProperty('column_id', expect.any(Number));
+						expect(task).toHaveProperty('title', expect.any(String));
+						expect(task).toHaveProperty('description', expect.any(String));
+						expect(task).toHaveProperty('status', expect.any(String));
+						expect(task).toHaveProperty('created_at', expect.any(String));
+					});
+				});
+		});
+	});
+});
