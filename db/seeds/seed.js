@@ -42,7 +42,7 @@ const seed = async ({ data }) => {
     subtask_id SERIAL PRIMARY KEY,
     task_id INT REFERENCES tasks(task_id),
     title VARCHAR(250) NOT NULL,
-    isCompleted BOOLEAN NOT NULL,
+    is_completed BOOLEAN NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
   );`);
 
@@ -105,7 +105,7 @@ const seed = async ({ data }) => {
 				// Insert data for subtasks
 				for (const subtaskData of taskData.subtasks) {
 					const subtaskInsertQuery = format(
-						'INSERT INTO subtasks (task_id, title, isCompleted) VALUES (%L, %L, %L) RETURNING *',
+						'INSERT INTO subtasks (task_id, title, is_completed) VALUES (%L, %L, %L) RETURNING *',
 						taskRows[0].task_id,
 						subtaskData.title,
 						subtaskData.isCompleted
