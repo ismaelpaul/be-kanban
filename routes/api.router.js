@@ -4,6 +4,7 @@ const boardsRouter = require('./boards.router');
 const columnsRouter = require('./columns.router');
 const usersRouter = require('./users.router');
 const tasksRouter = require('./tasks.router');
+const subtasksRouter = require('./subtasks.router');
 
 const apiRouter = express.Router();
 
@@ -18,5 +19,8 @@ apiRouter.use('/columns', columnsRouter);
 
 // /tasks
 apiRouter.use('/tasks', tasksRouter);
+
+// /tasks
+apiRouter.use('/subtasks', subtasksRouter);
 
 module.exports = apiRouter;
