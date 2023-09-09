@@ -44,6 +44,22 @@ describe('/api/boards/:board_id', () => {
 					});
 				});
 		});
+		test('400: responds with an error msg when user requests invalid id', () => {
+			return request(app)
+				.get('/api/boards/invalid')
+				.expect(400)
+				.then((response) => {
+					expect(response.body.msg).toEqual('Invalid ID.');
+				});
+		});
+		test("404: responds with an error msg when user requests id that doesn't exist", () => {
+			return request(app)
+				.get('/api/boards/32993')
+				.expect(404)
+				.then((response) => {
+					expect(response.body.msg).toEqual('Board not found.');
+				});
+		});
 	});
 });
 
@@ -62,6 +78,14 @@ describe('/api/boards/:board_id/columns', () => {
 						expect(column).toHaveProperty('board_id', expect.any(Number));
 						expect(column).toHaveProperty('name', expect.any(String));
 					});
+				});
+		});
+		test('400: responds with an error msg when user requests invalid id', () => {
+			return request(app)
+				.get('/api/boards/invalid/columns')
+				.expect(400)
+				.then((response) => {
+					expect(response.body.msg).toEqual('Invalid ID.');
 				});
 		});
 	});
@@ -90,7 +114,7 @@ describe('/api/columns', () => {
 
 describe('/api/users', () => {
 	describe('GET', () => {
-		test('200: return an array of users objects', () => {
+		test('200: responds with an array of users objects', () => {
 			return request(app)
 				.get('/api/users')
 				.expect(200)
@@ -129,6 +153,29 @@ describe('/api/tasks', () => {
 						expect(task).toHaveProperty('description', expect.any(String));
 						expect(task).toHaveProperty('status', expect.any(String));
 						expect(task).toHaveProperty('created_at', expect.any(String));
+					});
+				});
+		});
+	});
+});
+
+describe('/api/subtasks', () => {
+	describe('GET', () => {
+		test('200: responds with an array of subtasks objects', () => {
+			return request(app)
+				.get('/api/subtasks')
+				.expect(200)
+				.then((response) => {
+					const allSubtasks = response.body.subtasks;
+					expect(typeof response.body).toBe('object');
+					expect(Array.isArray(allSubtasks)).toBe(true);
+					expect(allSubtasks.length > 0).toBe(true);
+					allSubtasks.forEach((subtask) => {
+						expect(subtask).toHaveProperty('subtask_id', expect.any(Number));
+						expect(subtask).toHaveProperty('task_id', expect.any(Number));
+						expect(subtask).toHaveProperty('title', expect.any(String));
+						expect(subtask).toHaveProperty('is_completed', expect.any(Boolean));
+						expect(subtask).toHaveProperty('created_at', expect.any(String));
 					});
 				});
 		});
