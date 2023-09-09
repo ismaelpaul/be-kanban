@@ -7,7 +7,12 @@ exports.selectBoards = () => {
 exports.selectBoardsById = (board_id) => {
 	return db
 		.query(`SELECT * FROM boards WHERE boards.board_id=$1;`, [board_id])
-		.then((result) => result.rows[0]);
+		.then((result) => {
+			if (result.rowCount === 0) {
+				return Promise.reject({ status: 404, msg: 'Board not found.' });
+			}
+			return result.rows[0];
+		});
 };
 
 exports.selectColumnsByBoardId = (board_id) => {
