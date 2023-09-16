@@ -112,6 +112,28 @@ describe('/api/columns', () => {
 	});
 });
 
+describe('/api/columns/:column_id/tasks', () => {
+	describe('GET', () => {
+		test('200: responds with an array of tasks for the given column id', () => {
+			return request(app)
+				.get('/api/columns/4/tasks')
+				.expect(200)
+				.then((response) => {
+					const allTasks = response.body.tasks;
+					expect(Array.isArray(allTasks)).toBe(true);
+					expect(allTasks.length > 0).toBe(true);
+					allTasks.forEach((task) => {
+						expect(task).toHaveProperty('task_id', expect.any(Number));
+						expect(task).toHaveProperty('column_id', expect.any(Number));
+						expect(task).toHaveProperty('title', expect.any(String));
+						expect(task).toHaveProperty('description', expect.any(String));
+						expect(task).toHaveProperty('status', expect.any(String));
+					});
+				});
+		});
+	});
+});
+
 describe('/api/users', () => {
 	describe('GET', () => {
 		test('200: responds with an array of users objects', () => {
