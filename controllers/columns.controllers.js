@@ -1,9 +1,22 @@
-const { selectColumns } = require('../models/columns.models');
+const {
+	selectColumns,
+	selectTasksByColumnsId,
+} = require('../models/columns.models');
 
 exports.getColumns = (req, res, next) => {
 	selectColumns()
 		.then((columns) => {
 			res.status(200).send({ columns });
+		})
+		.catch(next);
+};
+
+exports.getTasksByColumnId = (req, res, next) => {
+	const { column_id } = req.params;
+
+	selectTasksByColumnsId(column_id)
+		.then((tasks) => {
+			res.status(200).send({ tasks });
 		})
 		.catch(next);
 };
