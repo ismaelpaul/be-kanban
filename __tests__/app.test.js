@@ -116,7 +116,7 @@ describe('/api/columns/:column_id/tasks', () => {
 	describe('GET', () => {
 		test('200: responds with an array of tasks for the given column id', () => {
 			return request(app)
-				.get('/api/columns/4/tasks')
+				.get('/api/columns/3/tasks')
 				.expect(200)
 				.then((response) => {
 					const allTasks = response.body.tasks;
@@ -175,6 +175,27 @@ describe('/api/tasks', () => {
 						expect(task).toHaveProperty('description', expect.any(String));
 						expect(task).toHaveProperty('status', expect.any(String));
 						expect(task).toHaveProperty('created_at', expect.any(String));
+					});
+				});
+		});
+	});
+});
+
+describe('/api/tasks/:task_id/subtasks', () => {
+	describe('GET', () => {
+		test('200: responds with an array of subtasks for the given task id', () => {
+			return request(app)
+				.get('/api/tasks/3/subtasks')
+				.expect(200)
+				.then((response) => {
+					const allSubtasks = response.body.subtasks;
+					expect(Array.isArray(allSubtasks)).toBe(true);
+					expect(allSubtasks.length > 0).toBe(true);
+					allSubtasks.forEach((subtask) => {
+						expect(subtask).toHaveProperty('task_id', expect.any(Number));
+						expect(subtask).toHaveProperty('subtask_id', expect.any(Number));
+						expect(subtask).toHaveProperty('title', expect.any(String));
+						expect(subtask).toHaveProperty('is_completed', expect.any(Boolean));
 					});
 				});
 		});
