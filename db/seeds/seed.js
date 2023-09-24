@@ -53,7 +53,7 @@ const seed = async ({ data }) => {
   RETURNING *;
 `;
 
-	const newUserValues = ['Admin', 'Admin', 'admin@admin.com', 'password']; // Replace with your desired user data
+	const newUserValues = ['Admin', 'Admin', 'admin@admin.com', 'password'];
 
 	const newUserResult = await db.query(newUserQuery, newUserValues);
 	const userId = newUserResult.rows[0].user_id;
@@ -89,18 +89,21 @@ const seed = async ({ data }) => {
 	// Insert data for tasks and subtasks
 	for (const board of formattedData.boards) {
 		for (const column of board.columns) {
+			const boardId = boardRows.find((row) => row.name === board.name).board_id;
 			for (const taskData of column.tasks) {
 				// Insert data for tasks
 				const taskInsertQuery = format(
 					'INSERT INTO tasks (column_id, title, description, status) VALUES (%L, %L, %L, %L) RETURNING *',
-					columnRows.find((row) => row.name === column.name).column_id,
+					columnRows.find(
+						(row) => row.board_id === boardId && row.name === column.name
+					).column_id,
 					taskData.title,
 					taskData.description,
 					taskData.status
 				);
-				const taskRows = await db
-					.query(taskInsertQuery)
-					.then((result) => result.rows);
+				const taskRows = await db.query(taskInsertQuery).then((result) => {
+					return result.rows;
+				});
 
 				// Insert data for subtasks
 				for (const subtaskData of taskData.subtasks) {
