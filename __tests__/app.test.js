@@ -181,6 +181,14 @@ describe('/api/tasks', () => {
 	});
 });
 
+describe('/api/tasks/:task_id', () => {
+	describe('DELETE', () => {
+		test('204: responds with an empty response body', () => {
+			return request(app).delete('/api/tasks/3').expect(204);
+		});
+	});
+});
+
 describe('/api/tasks/:task_id/subtasks', () => {
 	describe('GET', () => {
 		test('200: responds with an array of subtasks for the given task id', () => {
