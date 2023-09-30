@@ -13,8 +13,6 @@ exports.getTasks = (req, res, next) => {
 exports.deleteTaskById = (req, res, next) => {
 	const { task_id } = req.params;
 
-	console.log(task_id, '<<<< taks id controller');
-
 	removeTaskById(task_id)
 		.then((task) => {
 			res.status(204).send({ task });
