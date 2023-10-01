@@ -61,6 +61,11 @@ describe('/api/boards/:board_id', () => {
 				});
 		});
 	});
+	describe('DELETE', () => {
+		test('204: responds with an empty response body', () => {
+			return request(app).delete('/api/boards/1').expect(204);
+		});
+	});
 });
 
 describe('/api/boards/:board_id/columns', () => {
