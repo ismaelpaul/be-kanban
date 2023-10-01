@@ -7,7 +7,6 @@ exports.selectTasks = () => {
 };
 
 exports.removeTaskById = (task_id) => {
-	console.log(task_id, '<<< taks_id models');
 	return db
 		.query(`DELETE FROM subtasks WHERE task_id = $1;`, [task_id])
 		.then(() => {
