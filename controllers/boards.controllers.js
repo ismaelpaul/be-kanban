@@ -2,6 +2,7 @@ const {
 	selectBoards,
 	selectBoardsById,
 	selectColumnsByBoardId,
+	removeBoardById,
 } = require('../models/boards.models');
 
 exports.getBoards = (req, res, next) => {
@@ -17,6 +18,16 @@ exports.getBoardById = (req, res, next) => {
 	selectBoardsById(board_id)
 		.then((board) => {
 			res.status(200).send({ board });
+		})
+		.catch(next);
+};
+
+exports.deleteBoardById = (req, res, next) => {
+	const { board_id } = req.params;
+
+	removeBoardById(board_id)
+		.then((board) => {
+			res.status(204).send({ board });
 		})
 		.catch(next);
 };
