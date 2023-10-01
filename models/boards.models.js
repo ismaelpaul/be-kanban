@@ -15,6 +15,31 @@ exports.selectBoardsById = (board_id) => {
 		});
 };
 
+exports.removeBoardById = (board_id) => {
+	return db
+		.query(
+			`DELETE FROM subtasks WHERE task_id IN (SELECT tasks.task_id FROM tasks WHERE column_id IN (SELECT column_id FROM columns WHERE board_id = $1));`,
+			[board_id]
+		)
+		.then(() => {
+			return db.query(
+				`DELETE FROM tasks WHERE column_id IN (SELECT column_id FROM columns WHERE board_id = $1);`,
+				[board_id]
+			);
+		})
+		.then(() => {
+			return db.query(`DELETE FROM columns WHERE board_id = $1;`, [board_id]);
+		})
+		.then(() => {
+			return db.query(`DELETE FROM boards WHERE board_id = $1 RETURNING *;`, [
+				board_id,
+			]);
+		})
+		.then((result) => {
+			return result.rows[0];
+		});
+};
+
 exports.selectColumnsByBoardId = (board_id) => {
 	return db
 		.query(
