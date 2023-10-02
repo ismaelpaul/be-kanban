@@ -22,7 +22,7 @@ exports.removeTaskById = (task_id) => {
 exports.selectSubtasksByTaskId = (task_id) => {
 	return db
 		.query(
-			`SELECT subtasks.subtask_id, subtasks.task_id, subtasks.title, subtasks.is_completed FROM subtasks LEFT JOIN tasks ON subtasks.task_id = tasks.task_id WHERE tasks.task_id=$1;`,
+			`SELECT subtasks.subtask_id, subtasks.task_id, subtasks.title, subtasks.is_completed FROM subtasks LEFT JOIN tasks ON subtasks.task_id = tasks.task_id WHERE tasks.task_id=$1 ORDER BY subtask_id;`,
 			[task_id]
 		)
 		.then((result) => {
