@@ -54,3 +54,14 @@ exports.selectColumnsByBoardId = (board_id) => {
 			return result.rows;
 		});
 };
+
+exports.insertBoard = (user_id, board_name) => {
+	return db
+		.query(`INSERT INTO boards (user_id, name) VALUES ($1, $2) RETURNING *;`, [
+			user_id,
+			board_name,
+		])
+		.then((result) => {
+			return result.rows[0];
+		});
+};
