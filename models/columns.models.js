@@ -16,3 +16,14 @@ exports.selectTasksByColumnsId = (column_id) => {
 			return result.rows;
 		});
 };
+
+exports.insertColumn = ({ board_id, column_name }) => {
+	return db
+		.query(
+			`INSERT INTO columns (board_id, name) VALUES ($1, $2) RETURNING *;`,
+			[board_id, column_name]
+		)
+		.then((result) => {
+			return result.rows[0];
+		});
+};
