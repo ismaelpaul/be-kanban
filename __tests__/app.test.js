@@ -27,6 +27,26 @@ describe('/api/boards', () => {
 				});
 		});
 	});
+	describe('POST', () => {
+		test('201: responds with a baord newly added to the database', () => {
+			const newBoard = {
+				user_id: 1,
+				board_name: 'Production',
+				columns: [{ column_name: '' }, { column_name: '' }],
+			};
+			return request(app)
+				.post('/api/boards')
+				.send(newBoard)
+				.expect(201)
+				.then((response) => {
+					expect(response.body.board).toEqual({
+						user_id: 1,
+						board_id: 4,
+						name: 'Production',
+					});
+				});
+		});
+	});
 });
 
 describe('/api/boards/:board_id', () => {
@@ -180,6 +200,34 @@ describe('/api/tasks', () => {
 						expect(task).toHaveProperty('description', expect.any(String));
 						expect(task).toHaveProperty('status', expect.any(String));
 						expect(task).toHaveProperty('created_at', expect.any(String));
+					});
+				});
+		});
+	});
+	describe('POST', () => {
+		test('201: responds with a task newly added to the database', () => {
+			const newTask = {
+				column_id: 1,
+				title: 'New Task',
+				description: 'Just a new task',
+				status: 'Todo',
+				subtasks: [
+					{ subtask_title: '', is_completed: false },
+					{ subtask_title: '', is_completed: false },
+				],
+			};
+			return request(app)
+				.post('/api/tasks')
+				.send(newTask)
+				.expect(201)
+				.then((response) => {
+					expect(response.body.task).toEqual({
+						column_id: 1,
+						task_id: 23,
+						title: 'New Task',
+						description: 'Just a new task',
+						status: 'Todo',
+						created_at: expect.any(String),
 					});
 				});
 		});
