@@ -29,3 +29,14 @@ exports.selectSubtasksByTaskId = (task_id) => {
 			return result.rows;
 		});
 };
+
+exports.insertTask = (column_id, title, description, status) => {
+	return db
+		.query(
+			`INSERT INTO tasks (column_id, title, description, status) VALUES ($1, $2, $3, $4) RETURNING *;`,
+			[column_id, title, description, status]
+		)
+		.then((result) => {
+			return result.rows[0];
+		});
+};
