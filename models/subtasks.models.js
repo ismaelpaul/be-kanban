@@ -17,3 +17,14 @@ exports.updateSubtaskCompletionById = (is_completed, subtask_id) => {
 			result.rows[0];
 		});
 };
+
+exports.insertSubtask = (task_id, subtask_title, is_completed) => {
+	return db
+		.query(
+			`INSERT INTO subtasks (task_id, subtask_title, is_completed) VALUES ($1, $2, $3) RETURNING *;`,
+			[task_id, subtask_title, is_completed]
+		)
+		.then((result) => {
+			return result.rows[0];
+		});
+};
