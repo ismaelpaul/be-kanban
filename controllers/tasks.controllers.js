@@ -42,10 +42,11 @@ exports.addNewTaskAndSubtasks = (req, res, next) => {
 		const nonEmptySubtasks = subtasks.filter(
 			(subtask) => subtask.subtask_title.trim() !== ''
 		);
-
 		if (nonEmptySubtasks.length > 0) {
 			nonEmptySubtasks.map((subtask) => {
-				insertSubtask({ task_id, subtask_title, is_completed })
+				const title = subtask.subtask_title;
+				const is_completed = subtask.is_completed;
+				insertSubtask(task_id, title, is_completed)
 					.then(() => res.status(201).send({ task }))
 					.catch(next);
 			});
