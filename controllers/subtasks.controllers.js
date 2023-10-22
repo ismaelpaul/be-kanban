@@ -1,12 +1,22 @@
 const {
 	selectSubtasks,
 	updateSubtaskCompletionById,
+	selectSubtasksById,
 } = require('../models/subtasks.models');
 
 exports.getSubtasks = (req, res, next) => {
 	selectSubtasks()
 		.then((subtasks) => {
 			res.status(200).send({ subtasks });
+		})
+		.catch(next);
+};
+
+exports.getSubtasksById = (req, res, next) => {
+	const { subtask_id } = req.params;
+	selectSubtasksById(subtask_id)
+		.then((subtask) => {
+			res.status(200).send({ subtask });
 		})
 		.catch(next);
 };
