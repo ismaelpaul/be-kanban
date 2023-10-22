@@ -4,6 +4,14 @@ exports.selectSubtasks = () => {
 	return db.query(`SELECT * FROM subtasks`).then((result) => result.rows);
 };
 
+exports.selectSubtasksById = (subtask_id) => {
+	return db
+		.query(`SELECT * FROM subtasks WHERE subtasks.subtask_id=$1;`, [subtask_id])
+		.then((result) => {
+			return result.rows[0];
+		});
+};
+
 exports.updateSubtaskCompletionById = (is_completed, subtask_id) => {
 	return db
 		.query(
@@ -14,7 +22,7 @@ exports.updateSubtaskCompletionById = (is_completed, subtask_id) => {
 			[is_completed, subtask_id]
 		)
 		.then((result) => {
-			result.rows[0];
+			return result.rows[0];
 		});
 };
 
