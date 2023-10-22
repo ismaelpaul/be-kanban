@@ -285,3 +285,34 @@ describe('/api/subtasks', () => {
 		});
 	});
 });
+describe('/api/subtasks/:subtask_id', () => {
+	describe('PATCH', () => {
+		test('200: responds with the recently modified subtask object', () => {
+			return request(app)
+				.get(`/api/subtasks/3`)
+				.then((response) => {
+					if (response.status !== 200) {
+						throw new Error('Failed to retrieve the current value');
+					}
+
+					const currentCompletion = response.body.subtask.is_completed;
+
+					const newCompletion = !currentCompletion;
+
+					return request(app)
+						.patch(`/api/subtasks/3`)
+						.send({ is_completed: newCompletion })
+						.then((patchResponse) => {
+							expect(patchResponse.body.subtask).toEqual({
+								subtask_id: 3,
+								task_id: expect.any(Number),
+								title: expect.any(String),
+								is_completed: expect.any(Boolean),
+								created_at: expect.any(String),
+							});
+							expect(patchResponse.status).toBe(200);
+						});
+				});
+		});
+	});
+});
