@@ -1,7 +1,9 @@
 const db = require('../db/connection');
 
 exports.selectBoards = () => {
-	return db.query(`SELECT * FROM boards`).then((result) => result.rows);
+	return db
+		.query(`SELECT * FROM boards ORDER BY board_id`)
+		.then((result) => result.rows);
 };
 
 exports.selectBoardsById = (board_id) => {
@@ -47,7 +49,7 @@ exports.selectColumnsByBoardId = (board_id) => {
 			columns.column_id, 
 			columns.board_id,
 			columns.name
-			 FROM columns LEFT JOIN boards ON columns.board_id = boards.board_id WHERE boards.board_id=$1;`,
+			 FROM columns LEFT JOIN boards ON columns.board_id = boards.board_id WHERE boards.board_id=$1 ORDER BY column_id;`,
 			[board_id]
 		)
 		.then((result) => {
@@ -61,6 +63,20 @@ exports.insertBoard = (user_id, board_name) => {
 			user_id,
 			board_name,
 		])
+		.then((result) => {
+			return result.rows[0];
+		});
+};
+
+exports.updateBoardById = ({ board_id, board_name }) => {
+	return db
+		.query(
+			`UPDATE boards
+	SET name = $1  
+	WHERE board_id= $2 
+	RETURNING *;`,
+			[board_name, board_id]
+		)
 		.then((result) => {
 			return result.rows[0];
 		});
