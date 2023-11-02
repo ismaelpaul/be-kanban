@@ -1,15 +1,15 @@
 const db = require('../db/connection');
 
 exports.selectColumns = () => {
-	return db.query(`SELECT * FROM columns`).then((result) => {
+	return db.query(`SELECT * FROM columns ORDER BY column_id`).then((result) => {
 		return result.rows;
 	});
 };
 
-exports.selectTasksByColumnsId = (column_id) => {
+exports.selectTasksByColumnId = (column_id) => {
 	return db
 		.query(
-			`SELECT tasks.task_id, tasks.column_id, tasks.description, tasks.title, tasks.status FROM tasks LEFT JOIN columns ON tasks.column_id = columns.column_id WHERE columns.column_id=$1;`,
+			`SELECT tasks.task_id, tasks.column_id, tasks.description, tasks.title, tasks.status, tasks.position FROM tasks LEFT JOIN columns ON tasks.column_id = columns.column_id WHERE columns.column_id=$1 ORDER BY position;`,
 			[column_id]
 		)
 		.then((result) => {
@@ -22,6 +22,20 @@ exports.insertColumn = ({ board_id, column_name }) => {
 		.query(
 			`INSERT INTO columns (board_id, name) VALUES ($1, $2) RETURNING *;`,
 			[board_id, column_name]
+		)
+		.then((result) => {
+			return result.rows[0];
+		});
+};
+
+exports.updateColumnNameById = ({ column_id, column_name }) => {
+	return db
+		.query(
+			`UPDATE columns 
+	SET name = $1  
+	WHERE column_id = $2 
+	RETURNING *;`,
+			[column_name, column_id]
 		)
 		.then((result) => {
 			return result.rows[0];
