@@ -1,6 +1,6 @@
 const {
 	selectColumns,
-	selectTasksByColumnsId,
+	selectTasksByColumnId,
 } = require('../models/columns.models');
 
 exports.getColumns = (req, res, next) => {
@@ -14,7 +14,7 @@ exports.getColumns = (req, res, next) => {
 exports.getTasksByColumnId = (req, res, next) => {
 	const { column_id } = req.params;
 
-	selectTasksByColumnsId(column_id)
+	selectTasksByColumnId(column_id)
 		.then((tasks) => {
 			res.status(200).send({ tasks });
 		})
