@@ -35,6 +35,7 @@ const seed = async ({ data }) => {
     title VARCHAR(250) NOT NULL,
     description TEXT NOT NULL,
     status VARCHAR(25) NOT NULL,
+	position SERIAL NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
   );`);
 
