@@ -35,7 +35,7 @@ const seed = async ({ data }) => {
     title VARCHAR(250) NOT NULL,
     description TEXT NOT NULL,
     status VARCHAR(25) NOT NULL,
-	position SERIAL NOT NULL,
+	position INT,
     created_at TIMESTAMP DEFAULT NOW()
   );`);
 
@@ -47,7 +47,6 @@ const seed = async ({ data }) => {
     created_at TIMESTAMP DEFAULT NOW()
   );`);
 
-	// Insert data into the 'boards' table
 	const newUserQuery = `
   INSERT INTO users (first_name, last_name, email, password)
   VALUES ($1, $2, $3, $4)
@@ -87,24 +86,34 @@ const seed = async ({ data }) => {
 		.query(columnsInsertQuery)
 		.then((result) => result.rows);
 
-	// Insert data for tasks and subtasks
+	// Insert data for tasks and reset position for each column
 	for (const board of formattedData.boards) {
 		for (const column of board.columns) {
 			const boardId = boardRows.find((row) => row.name === board.name).board_id;
+
+			// Get the column_id for the current column
+			const currentColumnId = columnRows.find(
+				(row) => row.board_id === boardId && row.name === column.name
+			).column_id;
+
+			let currentPosition = 1;
+
 			for (const taskData of column.tasks) {
-				// Insert data for tasks
+				// Insert data for tasks and set the position
 				const taskInsertQuery = format(
-					'INSERT INTO tasks (column_id, title, description, status) VALUES (%L, %L, %L, %L) RETURNING *',
-					columnRows.find(
-						(row) => row.board_id === boardId && row.name === column.name
-					).column_id,
+					'INSERT INTO tasks (column_id, title, description, status, position) VALUES (%L, %L, %L, %L, %L) RETURNING *',
+					currentColumnId,
 					taskData.title,
 					taskData.description,
-					taskData.status
+					taskData.status,
+					currentPosition
 				);
+
 				const taskRows = await db.query(taskInsertQuery).then((result) => {
 					return result.rows;
 				});
+
+				currentPosition++;
 
 				// Insert data for subtasks
 				for (const subtaskData of taskData.subtasks) {
