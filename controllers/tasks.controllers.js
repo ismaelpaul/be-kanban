@@ -4,6 +4,7 @@ const {
 	selectSubtasksByTaskId,
 	removeTaskById,
 	insertTask,
+	updateTaskPositionByTaskId,
 } = require('../models/tasks.models');
 
 exports.getTasks = (req, res, next) => {
@@ -54,4 +55,22 @@ exports.addNewTaskAndSubtasks = (req, res, next) => {
 			res.status(201).send({ task });
 		}
 	});
+};
+
+exports.patchTaskPositionByTaskId = (req, res, next) => {
+	const { newTaskPosition, newColumnId, currentColumnId } = req.body;
+	const { task_id } = req.params;
+
+	const newColumn_id = newColumnId;
+
+	updateTaskPositionByTaskId(
+		newTaskPosition,
+		newColumn_id,
+		currentColumnId,
+		task_id
+	)
+		.then((tasks) => {
+			res.status(200).send({ tasks });
+		})
+		.catch(next);
 };
