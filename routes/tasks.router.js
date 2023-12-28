@@ -5,6 +5,7 @@ const {
 	deleteTaskById,
 	addNewTaskAndSubtasks,
 	patchTaskPositionByTaskId,
+	addNewSubtaskByTaskId,
 } = require('../controllers/tasks.controllers');
 
 const tasksRouter = express.Router();
@@ -16,6 +17,9 @@ tasksRouter
 	.delete(deleteTaskById)
 	.patch(patchTaskPositionByTaskId);
 
-tasksRouter.route('/:task_id/subtasks').get(getSubtasksByTaskId);
+tasksRouter
+	.route('/:task_id/subtasks')
+	.get(getSubtasksByTaskId)
+	.post(addNewSubtaskByTaskId);
 
 module.exports = tasksRouter;
