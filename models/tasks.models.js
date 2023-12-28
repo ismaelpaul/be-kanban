@@ -43,6 +43,7 @@ exports.insertTask = (column_id, title, description, status) => {
 
 exports.updateTaskPositionByTaskId = (
 	newTaskPosition,
+	currentTaskPosition,
 	newColumn_id,
 	column_id,
 	task_id
@@ -84,10 +85,29 @@ exports.updateTaskPositionByTaskId = (
 			});
 	} else {
 		return db
-			.query('UPDATE tasks SET position = $1 WHERE task_id = $2 RETURNING *;', [
-				newTaskPosition,
-				task_id,
-			])
+			.query('BEGIN')
+			.then(() => {
+				return db.query(
+					'UPDATE tasks SET position = $1 WHERE task_id = $2 RETURNING *;',
+					[newTaskPosition, task_id]
+				);
+			})
+			.then(() => {
+				if (newTaskPosition > currentTaskPosition) {
+					return db.query(
+						'UPDATE tasks SET position = position - 1 WHERE position <= $1 AND task_id != $2',
+						[newTaskPosition, task_id]
+					);
+				} else {
+					return db.query(
+						'UPDATE tasks SET position = position + 1 WHERE position >= $1 AND task_id != $2',
+						[newTaskPosition, task_id]
+					);
+				}
+			})
+			.then(() => {
+				return db.query('COMMIT');
+			})
 			.then((result) => {
 				return result.rows;
 			});
