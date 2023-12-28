@@ -41,16 +41,18 @@ exports.addNewTaskAndSubtasks = (req, res, next) => {
 		const subtasks = newTask.subtasks;
 
 		const nonEmptySubtasks = subtasks.filter(
-			(subtask) => subtask.subtask_title.trim() !== ''
+			(subtask) => subtask.title.trim() !== ''
 		);
 		if (nonEmptySubtasks.length > 0) {
-			nonEmptySubtasks.map((subtask) => {
-				const title = subtask.subtask_title;
+			const subtaskPromises = nonEmptySubtasks.map((subtask) => {
+				const title = subtask.title;
 				const is_completed = subtask.is_completed;
-				insertSubtask(task_id, title, is_completed)
-					.then(() => res.status(201).send({ task }))
-					.catch(next);
+				return insertSubtask(task_id, title, is_completed);
 			});
+
+			Promise.all(subtaskPromises)
+				.then(() => res.status(201).send({ task }))
+				.catch(next);
 		} else {
 			res.status(201).send({ task });
 		}
@@ -58,13 +60,15 @@ exports.addNewTaskAndSubtasks = (req, res, next) => {
 };
 
 exports.patchTaskPositionByTaskId = (req, res, next) => {
-	const { newTaskPosition, newColumnId, currentColumnId } = req.body;
+	const { newTaskPosition, currentTaskPosition, newColumnId, currentColumnId } =
+		req.body;
 	const { task_id } = req.params;
 
 	const newColumn_id = newColumnId;
 
 	updateTaskPositionByTaskId(
 		newTaskPosition,
+		currentTaskPosition,
 		newColumn_id,
 		currentColumnId,
 		task_id
@@ -72,5 +76,19 @@ exports.patchTaskPositionByTaskId = (req, res, next) => {
 		.then((tasks) => {
 			res.status(200).send({ tasks });
 		})
+		.catch(next);
+};
+
+exports.addNewSubtaskByTaskId = (req, res, next) => {
+	const { task_id } = req.params;
+	const newSubtask = req.body;
+
+	const subtaskPromises = newSubtask.map((subtask) => {
+		const title = subtask.title;
+		const is_completed = subtask.is_completed;
+		return insertSubtask(task_id, title, is_completed);
+	});
+	Promise.all(subtaskPromises)
+		.then((subtasks) => res.status(201).send({ subtasks }))
 		.catch(next);
 };
