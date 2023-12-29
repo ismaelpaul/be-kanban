@@ -36,3 +36,11 @@ exports.insertSubtask = (task_id, title, is_completed) => {
 			return result.rows[0];
 		});
 };
+
+exports.removeSubtask = (subtask_id) => {
+	return db
+		.query(`DELETE from subtasks WHERE subtask_id = $1`, [subtask_id])
+		.then((result) => {
+			return result.rows[0];
+		});
+};
