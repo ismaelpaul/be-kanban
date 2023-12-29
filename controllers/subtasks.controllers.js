@@ -2,6 +2,7 @@ const {
 	selectSubtasks,
 	updateSubtaskCompletionById,
 	selectSubtasksById,
+	removeSubtask,
 } = require('../models/subtasks.models');
 
 exports.getSubtasks = (req, res, next) => {
@@ -29,5 +30,16 @@ exports.patchSubtaskCompletionById = (req, res, next) => {
 		.then((subtask) => {
 			res.status(200).send({ subtask });
 		})
+		.catch(next);
+};
+
+exports.deleteSubtasks = (req, res, next) => {
+	const subtasksIds = req.body;
+
+	const deletionSubtasksPromise = subtasksIds.map((subtask_id) =>
+		removeSubtask(subtask_id)
+	);
+	Promise.all(deletionSubtasksPromise)
+		.then(() => res.status(204).send({ message: 'Deleted' }))
 		.catch(next);
 };
