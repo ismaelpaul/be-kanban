@@ -41,11 +41,12 @@ exports.insertTask = (column_id, title, description, status) => {
 		});
 };
 
-exports.updateTaskPositionByTaskId = (
+exports.updateTaskPositionAndStatusByTaskId = (
 	newTaskPosition,
 	currentTaskPosition,
 	newColumn_id,
 	column_id,
+	newStatus,
 	task_id
 ) => {
 	if (newColumn_id !== column_id) {
@@ -53,8 +54,8 @@ exports.updateTaskPositionByTaskId = (
 			.query('BEGIN')
 			.then(() => {
 				return db.query(
-					'UPDATE tasks SET column_id = $1 WHERE task_id = $2 RETURNING *;',
-					[newColumn_id, task_id]
+					'UPDATE tasks SET column_id = $1, status = $2 WHERE task_id = $3 RETURNING *;',
+					[newColumn_id, newStatus, task_id]
 				);
 			})
 			.then(() => {

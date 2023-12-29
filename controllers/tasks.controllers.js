@@ -4,7 +4,7 @@ const {
 	selectSubtasksByTaskId,
 	removeTaskById,
 	insertTask,
-	updateTaskPositionByTaskId,
+	updateTaskPositionAndStatusByTaskId,
 } = require('../models/tasks.models');
 
 exports.getTasks = (req, res, next) => {
@@ -59,18 +59,24 @@ exports.addNewTaskAndSubtasks = (req, res, next) => {
 	});
 };
 
-exports.patchTaskPositionByTaskId = (req, res, next) => {
-	const { newTaskPosition, currentTaskPosition, newColumnId, currentColumnId } =
-		req.body;
+exports.patchTaskPositionAndStatusByTaskId = (req, res, next) => {
+	const {
+		newTaskPosition,
+		currentTaskPosition,
+		newColumnId,
+		currentColumnId,
+		newStatus,
+	} = req.body;
 	const { task_id } = req.params;
 
 	const newColumn_id = newColumnId;
 
-	updateTaskPositionByTaskId(
+	updateTaskPositionAndStatusByTaskId(
 		newTaskPosition,
 		currentTaskPosition,
 		newColumn_id,
 		currentColumnId,
+		newStatus,
 		task_id
 	)
 		.then((tasks) => {
