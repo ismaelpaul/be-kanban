@@ -5,6 +5,7 @@ const {
 	removeTaskById,
 	insertTask,
 	updateTaskPositionAndStatusByTaskId,
+	updateTaskByTaskId,
 } = require('../models/tasks.models');
 
 exports.getTasks = (req, res, next) => {
@@ -67,6 +68,7 @@ exports.patchTaskPositionAndStatusByTaskId = (req, res, next) => {
 		currentColumnId,
 		newStatus,
 	} = req.body;
+
 	const { task_id } = req.params;
 
 	const newColumn_id = newColumnId;
@@ -81,6 +83,17 @@ exports.patchTaskPositionAndStatusByTaskId = (req, res, next) => {
 	)
 		.then((tasks) => {
 			res.status(200).send({ tasks });
+		})
+		.catch(next);
+};
+
+exports.patchTaskByTaskId = (req, res, next) => {
+	const { title, description } = req.body;
+	const { task_id } = req.params;
+
+	updateTaskByTaskId(task_id, title, description)
+		.then((task) => {
+			res.status(200).send({ task });
 		})
 		.catch(next);
 };
