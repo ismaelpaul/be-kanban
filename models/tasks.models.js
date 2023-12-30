@@ -114,3 +114,36 @@ exports.updateTaskPositionAndStatusByTaskId = (
 			});
 	}
 };
+
+exports.updateTaskByTaskId = (task_id, title, description) => {
+	let queryString = `UPDATE tasks SET `;
+
+	const queryParams = [];
+
+	let paramCount = 1;
+
+	if (title !== undefined) {
+		queryString += `title = $${paramCount}, `;
+		queryParams.push(title);
+		paramCount++;
+	}
+
+	if (description !== undefined) {
+		queryString += `description = $${paramCount}, `;
+		queryParams.push(description);
+		paramCount++;
+	}
+
+	if (queryParams.length > 0) {
+		queryString = queryString.slice(0, -2);
+	} else {
+		return Promise.resolve();
+	}
+
+	queryString += ` WHERE task_id = $${paramCount}`;
+	queryParams.push(task_id);
+
+	return db.query(queryString, queryParams).then((result) => {
+		return result.rows;
+	});
+};
