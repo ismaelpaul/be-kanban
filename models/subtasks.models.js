@@ -26,6 +26,17 @@ exports.updateSubtaskCompletionById = (is_completed, subtask_id) => {
 		});
 };
 
+exports.updateSubtaskTitleById = (title, subtask_id) => {
+	return db
+		.query(
+			`UPDATE subtasks SET title = $1 WHERE subtask_id = $2 RETURNING *;`,
+			[title, subtask_id]
+		)
+		.then((result) => {
+			return result.rows[0];
+		});
+};
+
 exports.insertSubtask = (task_id, title, is_completed) => {
 	return db
 		.query(
