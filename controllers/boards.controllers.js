@@ -48,34 +48,41 @@ exports.getColumnsByBoardId = (req, res, next) => {
 exports.addNewBoardAndColumns = (req, res, next) => {
 	const newBoard = req.body;
 	const { user_id, board_name } = newBoard;
+
 	const boardNameCapitalised = board_name
 		.trim()
 		.split(' ')
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(' ');
-	insertBoard(user_id, boardNameCapitalised).then((board) => {
-		const board_id = board.board_id;
-		const columns = newBoard.columns;
 
-		const nonEmptyColumns = columns.filter(
-			(column) => column.column_name.trim() !== ''
-		);
+	insertBoard(user_id, boardNameCapitalised)
+		.then((board) => {
+			const board_id = board.board_id;
+			const columns = newBoard.columns;
 
-		if (nonEmptyColumns.length > 0) {
-			nonEmptyColumns.map((column) => {
-				const columnNameCapitalised = column.column_name
-					.trim()
-					.split(' ')
-					.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-					.join(' ');
-				insertColumn({ board_id, column_name: columnNameCapitalised })
+			const nonEmptyColumns = columns.filter(
+				(column) => column.column_name.trim() !== ''
+			);
+
+			if (nonEmptyColumns.length > 0) {
+				const columnPromises = nonEmptyColumns.map((column) => {
+					const columnNameCapitalised = column.column_name
+						.trim()
+						.split(' ')
+						.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+						.join(' ');
+
+					return insertColumn({ board_id, column_name: columnNameCapitalised });
+				});
+
+				Promise.all(columnPromises)
 					.then(() => res.status(201).send({ board }))
 					.catch(next);
-			});
-		} else {
-			res.status(201).send({ board });
-		}
-	});
+			} else {
+				res.status(201).send({ board });
+			}
+		})
+		.catch(next);
 };
 
 exports.patchBoardsAndColumns = (req, res, next) => {
