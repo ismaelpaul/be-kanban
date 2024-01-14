@@ -6,6 +6,7 @@ const {
 	deleteBoardById,
 	addNewBoardAndColumns,
 	patchBoardsAndColumns,
+	patchColumnsByBoardId,
 } = require('../controllers/boards.controllers');
 
 const boardsRouter = express.Router();
@@ -18,6 +19,9 @@ boardsRouter
 	.patch(patchBoardsAndColumns)
 	.delete(deleteBoardById);
 
-boardsRouter.route('/:board_id/columns').get(getColumnsByBoardId);
+boardsRouter
+	.route('/:board_id/columns')
+	.get(getColumnsByBoardId)
+	.patch(patchColumnsByBoardId);
 
 module.exports = boardsRouter;
