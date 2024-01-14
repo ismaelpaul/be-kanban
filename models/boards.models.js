@@ -57,11 +57,11 @@ exports.selectColumnsByBoardId = (board_id) => {
 		});
 };
 
-exports.insertBoard = (user_id, board_name) => {
+exports.insertBoard = (user_id, name) => {
 	return db
 		.query(`INSERT INTO boards (user_id, name) VALUES ($1, $2) RETURNING *;`, [
 			user_id,
-			board_name,
+			name,
 		])
 		.then((result) => {
 			return result.rows[0];
