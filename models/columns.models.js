@@ -17,25 +17,25 @@ exports.selectTasksByColumnId = (column_id) => {
 		});
 };
 
-exports.insertColumn = ({ board_id, column_name }) => {
+exports.insertColumn = ({ board_id, name }) => {
 	return db
 		.query(
 			`INSERT INTO columns (board_id, name) VALUES ($1, $2) RETURNING *;`,
-			[board_id, column_name]
+			[board_id, name]
 		)
 		.then((result) => {
 			return result.rows[0];
 		});
 };
 
-exports.updateColumnNameById = ({ column_id, column_name }) => {
+exports.updateColumnNameById = (column_id, name) => {
 	return db
 		.query(
 			`UPDATE columns 
-	SET name = $1  
+	SET name = $1  	
 	WHERE column_id = $2 
 	RETURNING *;`,
-			[column_name, column_id]
+			[name, column_id]
 		)
 		.then((result) => {
 			return result.rows[0];
