@@ -6,7 +6,11 @@ const {
 	insertBoard,
 	updateBoardById,
 } = require('../models/boards.models');
-const { insertColumn, updateColumnById } = require('../models/columns.models');
+const {
+	insertColumn,
+	updateColumnNameById,
+	updateColumnNameByBoardId,
+} = require('../models/columns.models');
 
 exports.getBoards = (req, res, next) => {
 	selectBoards()
@@ -47,9 +51,10 @@ exports.getColumnsByBoardId = (req, res, next) => {
 
 exports.addNewBoardAndColumns = (req, res, next) => {
 	const newBoard = req.body;
-	const { user_id, board_name } = newBoard;
+	const { name } = newBoard;
+	const user_id = 1; // set this value for now
 
-	const boardNameCapitalised = board_name
+	const boardNameCapitalised = name
 		.trim()
 		.split(' ')
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -61,18 +66,18 @@ exports.addNewBoardAndColumns = (req, res, next) => {
 			const columns = newBoard.columns;
 
 			const nonEmptyColumns = columns.filter(
-				(column) => column.column_name.trim() !== ''
+				(column) => column.name.trim() !== ''
 			);
 
 			if (nonEmptyColumns.length > 0) {
 				const columnPromises = nonEmptyColumns.map((column) => {
-					const columnNameCapitalised = column.column_name
+					const columnNameCapitalised = column.name
 						.trim()
 						.split(' ')
 						.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 						.join(' ');
 
-					return insertColumn({ board_id, column_name: columnNameCapitalised });
+					return insertColumn({ board_id, name: columnNameCapitalised });
 				});
 
 				Promise.all(columnPromises)
@@ -87,7 +92,7 @@ exports.addNewBoardAndColumns = (req, res, next) => {
 
 exports.patchBoardsAndColumns = (req, res, next) => {
 	const updatedBoard = req.body;
-	const { board_id, board_name, columns } = updatedBoard;
+	const { board_id, name, columns } = updatedBoard;
 
 	const capitalizeString = (str) => {
 		return str
@@ -99,10 +104,10 @@ exports.patchBoardsAndColumns = (req, res, next) => {
 
 	const updateBoardPromise = () => {
 		return new Promise((resolve, reject) => {
-			if (board_name !== '') {
-				const boardNameCapitalised = capitalizeString(board_name);
+			if (name !== '') {
+				const boardNameCapitalised = capitalizeString(name);
 
-				updateBoardById({ board_id, board_name: boardNameCapitalised })
+				updateBoardById({ board_id, name: boardNameCapitalised })
 					.then((updatedBoard) => {
 						resolve(updatedBoard);
 					})
@@ -114,13 +119,13 @@ exports.patchBoardsAndColumns = (req, res, next) => {
 	};
 
 	const updateColumnsPromises = columns
-		.filter((column) => column.column_name.trim() !== '')
+		.filter((column) => column.name.trim() !== '')
 		.map((column) => {
 			return new Promise((resolve, reject) => {
-				const { column_id, column_name } = column;
-				const columnNameCapitalised = capitalizeString(column_name);
+				const { column_id, name } = column;
+				const columnNameCapitalised = capitalizeString(name);
 
-				updateColumnById({ column_id, column_name: columnNameCapitalised })
+				updateColumnNameById({ column_id, name: columnNameCapitalised })
 					.then((updatedColumn) => {
 						resolve(updatedColumn);
 					})
@@ -140,5 +145,20 @@ exports.patchBoardsAndColumns = (req, res, next) => {
 
 			res.status(200).send(responseObj);
 		})
+		.catch(next);
+};
+
+exports.patchColumnsByBoardId = (req, res, next) => {
+	const columns = req.body;
+
+	const columnsPromises = columns.map((column) => {
+		const name = column.name;
+		const column_id = column.column_id;
+
+		return updateColumnNameById(column_id, name);
+	});
+
+	Promise.all(columnsPromises)
+		.then(() => res.status(201).send({ columns }))
 		.catch(next);
 };
