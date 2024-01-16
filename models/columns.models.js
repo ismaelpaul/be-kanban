@@ -41,3 +41,20 @@ exports.updateColumnNameById = (column_id, name) => {
 			return result.rows[0];
 		});
 };
+
+exports.removeColumnsById = (column_id) => {
+	return db
+		.query(
+			`DELETE FROM subtasks WHERE task_id IN (SELECT tasks.task_id FROM tasks WHERE column_id = $1);`,
+			[column_id]
+		)
+		.then(() => {
+			return db.query(`DELETE FROM tasks WHERE column_id = $1;`, [column_id]);
+		})
+		.then(() => {
+			return db.query(`DELETE FROM columns WHERE column_id = $1;`, [column_id]);
+		})
+		.then((result) => {
+			return result.rows[0];
+		});
+};
