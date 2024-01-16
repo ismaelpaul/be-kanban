@@ -1,6 +1,7 @@
 const {
 	selectColumns,
 	selectTasksByColumnId,
+	removeColumnsById,
 } = require('../models/columns.models');
 
 exports.getColumns = (req, res, next) => {
@@ -18,5 +19,17 @@ exports.getTasksByColumnId = (req, res, next) => {
 		.then((tasks) => {
 			res.status(200).send({ tasks });
 		})
+		.catch(next);
+};
+
+exports.deleteColumnsByColumnId = (req, res, next) => {
+	const columns = req.body;
+
+	const columnsPromises = columns.map((column_id) => {
+		return removeColumnsById(column_id);
+	});
+
+	Promise.all(columnsPromises)
+		.then(() => res.status(201).send({ columns }))
 		.catch(next);
 };
