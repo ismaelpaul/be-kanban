@@ -68,14 +68,14 @@ exports.insertBoard = (user_id, name) => {
 		});
 };
 
-exports.updateBoardById = ({ board_id, board_name }) => {
+exports.updateBoardById = (board_id, name) => {
 	return db
 		.query(
 			`UPDATE boards
-	SET name = $1  
-	WHERE board_id= $2 
-	RETURNING *;`,
-			[board_name, board_id]
+			SET name = $1  
+			WHERE board_id= $2 
+			RETURNING *;`,
+			[name, board_id]
 		)
 		.then((result) => {
 			return result.rows[0];
