@@ -4,7 +4,7 @@ const cors = require('cors');
 
 const app = express();
 
-const whitelist = ['http://localhost:5173'];
+const whitelist = ['http://localhost:5173', 'https://fe-kanban.netlify.app/'];
 const corsOptions = {
 	origin: function (origin, callback) {
 		if (whitelist.indexOf(origin) !== -1) {
