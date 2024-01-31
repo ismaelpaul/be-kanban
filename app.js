@@ -6,7 +6,7 @@ const app = express();
 
 app.use(
 	cors({
-		origin: ['http://localhost:5173', 'https://fe-kanban.netlify.app/'],
+		origin: ['http://localhost:5173', 'https://fe-kanban.netlify.app'],
 		headers: ['Content-Type'],
 		credentials: true,
 	})
