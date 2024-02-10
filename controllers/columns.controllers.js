@@ -12,14 +12,21 @@ exports.getColumns = (req, res, next) => {
 		.catch(next);
 };
 
-exports.getTasksByColumnId = (req, res, next) => {
-	const { column_id } = req.params;
+exports.getTasksByColumnId = async (req, res, next) => {
+	try {
+		const { column_id } = req.params;
 
-	selectTasksByColumnId(column_id)
-		.then((tasks) => {
-			res.status(200).send({ tasks });
-		})
-		.catch(next);
+		const tasks = await selectTasksByColumnId(column_id);
+
+		const formattedTasks = tasks.map((task) => ({
+			...task,
+			subtasks: task.subtasks || [],
+		}));
+
+		res.status(200).send({ tasks: formattedTasks });
+	} catch (error) {
+		next(error);
+	}
 };
 
 exports.deleteColumnsByColumnId = (req, res, next) => {
