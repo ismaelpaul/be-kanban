@@ -6,10 +6,7 @@ const authRouter = express.Router();
 const CLIENT_URL = process.env.CLIENT_URL;
 
 authRouter.get('/login/success', (req, res) => {
-	console.log('successssssss');
-	console.log(req.user, '<<<<< user');
 	if (req.user) {
-		console.log(req.cookies, '<<<< cookies');
 		res.status(200).json({
 			success: true,
 			message: 'successfull',
@@ -33,7 +30,7 @@ authRouter.get('/logout', (req, res) => {
 
 authRouter
 	.route('/google')
-	.get(passport.authenticate('google', { scope: ['profile'] }));
+	.get(passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 authRouter.route('/google/callback').get(
 	passport.authenticate('google', {
