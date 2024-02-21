@@ -39,4 +39,15 @@ authRouter.route('/google/callback').get(
 	})
 );
 
+authRouter
+	.route('/github')
+	.get(passport.authenticate('github', { scope: ['user:email', 'read:user'] }));
+
+authRouter.route('/github/callback').get(
+	passport.authenticate('github', {
+		successRedirect: CLIENT_URL,
+		failureRedirect: '/login/failed',
+	})
+);
+
 module.exports = authRouter;
