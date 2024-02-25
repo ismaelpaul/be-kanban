@@ -1,8 +1,23 @@
 const express = require('express');
 const apiRouter = require('./routes/api.router');
+const cookieSession = require('cookie-session');
+const passport = require('passport');
 const cors = require('cors');
+const authRouter = require('./routes/auth.router');
+require('./passport');
 
 const app = express();
+
+app.use(
+	cookieSession({
+		name: 'session',
+		keys: ['test'],
+		maxAge: 24 * 60 * 60 * 1000,
+	})
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(
 	cors({
@@ -15,6 +30,8 @@ app.use(
 app.use(express.json());
 
 app.use('/api', apiRouter);
+
+app.use('/auth', authRouter);
 
 //error handling
 app.use('/*', (req, res) => {

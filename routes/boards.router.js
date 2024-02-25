@@ -12,6 +12,11 @@ const {
 
 const boardsRouter = express.Router();
 
+boardsRouter.use((req, res, next) => {
+	if (req.user) next();
+	else res.status(401).send({ message: 'Not authorized, please log in' });
+});
+
 boardsRouter.route('/').get(getBoards).post(addNewBoardAndColumns);
 
 boardsRouter

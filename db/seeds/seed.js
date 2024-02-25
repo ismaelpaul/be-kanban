@@ -1,6 +1,7 @@
 const format = require('pg-format');
 const db = require('../connection');
 const { formatData } = require('./utils');
+const { hashPassword } = require('../../utils/helper');
 
 const seed = async ({ data }) => {
 	await db.query(`DROP TABLE IF EXISTS subtasks`);
@@ -10,11 +11,12 @@ const seed = async ({ data }) => {
 	await db.query(`DROP TABLE IF EXISTS users`);
 
 	await db.query(`CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,
-    first_name VARCHAR(50) DEFAULT 'admin',
-    last_name VARCHAR(50),
-    email VARCHAR(50) DEFAULT 'admin@admin.com',
-    password VARCHAR DEFAULT 'password'
+		user_id SERIAL PRIMARY KEY,
+		first_name VARCHAR(50) DEFAULT 'admin',
+		last_name VARCHAR(50),
+		email VARCHAR(50) DEFAULT 'admin@admin.com',
+		password VARCHAR DEFAULT 'password',
+		avatar VARCHAR DEFAULT 'https://i.ibb.co/4pDNDk1/avatar.png'
   );`);
 
 	await db.query(`CREATE TABLE boards (
@@ -48,12 +50,18 @@ const seed = async ({ data }) => {
   );`);
 
 	const newUserQuery = `
-  INSERT INTO users (first_name, last_name, email, password)
-  VALUES ($1, $2, $3, $4)
+  INSERT INTO users (first_name, last_name, email, password, avatar)
+  VALUES ($1, $2, $3, $4, $5)
   RETURNING *;
 `;
 
-	const newUserValues = ['Admin', 'Admin', 'admin@admin.com', 'password'];
+	const newUserValues = [
+		'Admin',
+		'Admin',
+		'admin@admin.com',
+		hashPassword('password'),
+		'https://i.ibb.co/4pDNDk1/avatar.png',
+	];
 
 	const newUserResult = await db.query(newUserQuery, newUserValues);
 	const userId = newUserResult.rows[0].user_id;
