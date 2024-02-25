@@ -1,8 +1,15 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const {
+	checkUserExistsByEmail,
+	checkUserExistsById,
+	insertGoogleUser,
+} = require('./models/auth.models');
+const { comparePassword } = require('./utils/helper');
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
 
 passport.use(
 	new GoogleStrategy(
@@ -11,12 +18,21 @@ passport.use(
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 			callbackURL: '/auth/google/callback',
 		},
-		function (accessToken, refreshToken, profile, cb, done) {
+		async function (accessToken, refreshToken, profile, cb, done) {
 			// TODO: Save user information
 
 			const decodedToken = jwt.decode(profile.id_token, { complete: true });
+			const payload = decodedToken.payload;
 
-			done(null, profile);
+			const user = {
+				first_name: payload.given_name,
+				last_name: payload.family_name,
+				email: payload.email,
+				avatar: payload.picture,
+			};
+
+			const userDB = await insertGoogleUser(user);
+			done(null, userDB);
 		}
 	)
 );
@@ -59,10 +75,48 @@ passport.use(
 	)
 );
 
+passport.use(
+	new LocalStrategy({ usernameField: 'email' }, async function (
+		email,
+		password,
+		done
+	) {
+		if (!email || !password) {
+			throw new Error('Missing credentials');
+		}
+
+		const userExists = await checkUserExistsByEmail(email);
+
+		if (!userExists) {
+			throw new Error('User not found');
+		}
+
+		const userDB = userExists.user;
+
+		const userPassword = userExists.user.password;
+
+		const isValid = comparePassword(password, userPassword);
+
+		if (isValid) {
+			return done(null, userDB);
+		} else {
+			return done(null, false, {
+				message: 'Unauthorized, please login!',
+			});
+		}
+	})
+);
+
 passport.serializeUser((user, done) => {
-	done(null, user);
+	done(null, user.user_id);
 });
 
-passport.deserializeUser((user, done) => {
-	done(null, user);
+passport.deserializeUser(async (id, done) => {
+	try {
+		const user = await checkUserExistsById(id);
+		if (!user) throw new Error('User not found');
+		done(null, user.user);
+	} catch (error) {
+		console.log(error);
+	}
 });
