@@ -1,6 +1,6 @@
 const db = require('../db/connection');
 
-exports.insertGoogleUser = async (user) => {
+exports.insertGoogleOrGithubUser = async (user) => {
 	const { first_name, last_name, email, avatar } = user;
 
 	try {
