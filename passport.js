@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const {
 	checkUserExistsByEmail,
 	checkUserExistsById,
-	insertGoogleUser,
+	insertGoogleOrGithubUser,
 } = require('./models/auth.models');
 const { comparePassword } = require('./utils/helper');
 
@@ -18,21 +18,29 @@ passport.use(
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 			callbackURL: '/auth/google/callback',
 		},
-		async function (accessToken, refreshToken, profile, cb, done) {
-			// TODO: Save user information
+		async function (accessToken, refreshToken, profile, done) {
+			try {
+				const payload = profile._json;
 
-			const decodedToken = jwt.decode(profile.id_token, { complete: true });
-			const payload = decodedToken.payload;
+				const existingUser = await checkUserExistsByEmail(payload.email);
 
-			const user = {
-				first_name: payload.given_name,
-				last_name: payload.family_name,
-				email: payload.email,
-				avatar: payload.picture,
-			};
+				if (existingUser.userExists) {
+					done(null, existingUser.user);
+				} else {
+					const user = {
+						first_name: payload.given_name,
+						last_name: payload.family_name,
+						email: payload.email,
+						avatar: payload.picture,
+					};
 
-			const userDB = await insertGoogleUser(user);
-			done(null, userDB);
+					const newUser = await insertGoogleOrGithubUser(user);
+					done(null, newUser);
+				}
+			} catch (error) {
+				console.error(error.message);
+				done(null, false);
+			}
 		}
 	)
 );
@@ -59,9 +67,25 @@ passport.use(
 
 				// Find the primary email
 				const primaryEmail = emailData.find((email) => email.primary);
-
 				if (primaryEmail) {
-					// TODO user registration
+					const existingUser = await checkUserExistsByEmail(primaryEmail);
+					if (existingUser.userExists) {
+						done(null, existingUser.user);
+					} else {
+						const nameArray = profile.displayName.split(' ');
+						const firstName = nameArray[0];
+						const lastName = nameArray[nameArray.length - 1];
+
+						const user = {
+							first_name: firstName,
+							last_name: lastName,
+							email: primaryEmail.email,
+							avatar: profile.photos[0].value,
+						};
+
+						const newUser = await insertGoogleOrGithubUser(user);
+						done(null, newUser);
+					}
 				} else {
 					console.error('No primary email found.');
 					done(null, false);
