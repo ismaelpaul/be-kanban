@@ -35,6 +35,7 @@ passport.use(
 					};
 
 					const newUser = await insertGoogleOrGithubUser(user);
+
 					done(null, newUser);
 				}
 			} catch (error) {
@@ -67,8 +68,10 @@ passport.use(
 
 				// Find the primary email
 				const primaryEmail = emailData.find((email) => email.primary);
+
 				if (primaryEmail) {
-					const existingUser = await checkUserExistsByEmail(primaryEmail);
+					const existingUser = await checkUserExistsByEmail(primaryEmail.email);
+
 					if (existingUser.userExists) {
 						done(null, existingUser.user);
 					} else {
@@ -84,6 +87,7 @@ passport.use(
 						};
 
 						const newUser = await insertGoogleOrGithubUser(user);
+
 						done(null, newUser);
 					}
 				} else {
