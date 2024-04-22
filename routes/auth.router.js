@@ -1,5 +1,6 @@
 const express = require('express');
 const passport = require('passport');
+const { registerUser } = require('../controllers/auth.controller');
 
 const authRouter = express.Router();
 
@@ -49,5 +50,14 @@ authRouter.route('/github/callback').get(
 		failureRedirect: '/login/failed',
 	})
 );
+
+authRouter.route('/login').post(passport.authenticate('local'), (req, res) => {
+	const user = req.user;
+	res.status(200).send(user);
+});
+
+authRouter.route('/register').post(registerUser);
+
+authRouter.route('/logout').post();
 
 module.exports = authRouter;
