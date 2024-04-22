@@ -5,6 +5,7 @@ const columnsRouter = require('./columns.router');
 const usersRouter = require('./users.router');
 const tasksRouter = require('./tasks.router');
 const subtasksRouter = require('./subtasks.router');
+const authRouter = require('./auth.router');
 
 const apiRouter = express.Router();
 
@@ -22,5 +23,7 @@ apiRouter.use('/tasks', tasksRouter);
 
 // /tasks
 apiRouter.use('/subtasks', subtasksRouter);
+
+apiRouter.use('/auth', authRouter);
 
 module.exports = apiRouter;
