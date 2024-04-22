@@ -15,7 +15,7 @@ const seed = async ({ data }) => {
 		first_name VARCHAR(50) DEFAULT 'admin',
 		last_name VARCHAR(50),
 		email VARCHAR(50) DEFAULT 'admin@admin.com',
-		password VARCHAR DEFAULT 'password',
+		password VARCHAR DEFAULT 'null',
 		avatar VARCHAR DEFAULT 'https://i.ibb.co/4pDNDk1/avatar.png'
   );`);
 
