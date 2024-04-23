@@ -11,7 +11,7 @@ const app = express();
 app.use(
 	cookieSession({
 		name: 'session',
-		keys: ['test'],
+		keys: [process.env.COOKIE_KEY],
 		maxAge: 24 * 60 * 60 * 1000,
 	})
 );
