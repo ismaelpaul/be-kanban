@@ -17,9 +17,10 @@ exports.insertGoogleOrGithubUser = async (user) => {
 
 exports.checkUserExistsByEmail = async (email) => {
 	try {
-		const result = await db.query(`SELECT * FROM users WHERE email = $1;`, [
-			email,
-		]);
+		const result = await db.query(
+			`SELECT users.user_id, users.first_name, users.last_name, users.email, users.avatar FROM users WHERE email = $1;`,
+			[email]
+		);
 
 		const userExists = result.rows.length > 0;
 
@@ -32,9 +33,10 @@ exports.checkUserExistsByEmail = async (email) => {
 
 exports.checkUserExistsById = async (user_id) => {
 	try {
-		const result = await db.query(`SELECT * FROM users WHERE user_id = $1;`, [
-			user_id,
-		]);
+		const result = await db.query(
+			`SELECT users.user_id, users.first_name, users.last_name, users.email, users.avatar FROM users WHERE user_id = $1;`,
+			[user_id]
+		);
 
 		const userExists = result.rows.length > 0;
 
