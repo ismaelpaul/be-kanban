@@ -1,6 +1,7 @@
 const express = require('express');
 const apiRouter = require('./routes/api.router');
-const cookieSession = require('cookie-session');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
 const passport = require('passport');
 const cors = require('cors');
 const authRouter = require('./routes/auth.router');
@@ -10,12 +11,20 @@ const app = express();
 
 app.use(express.json());
 
+app.use(cookieParser());
+
 app.set('trust proxy', 1);
 app.use(
-	cookieSession({
-		name: 'session',
-		keys: [process.env.COOKIE_KEY],
-		maxAge: 24 * 60 * 60 * 1000,
+	session({
+		secret: process.env.SESSION_SECRET,
+		cookie: {
+			sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+			maxAge: 60000000,
+			secure: process.env.NODE_ENV === 'production',
+		},
+		resave: true,
+		saveUninitialized: false,
+		ttl: 60 * 60 * 24 * 30,
 	})
 );
 
