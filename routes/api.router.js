@@ -2,7 +2,7 @@ const express = require('express');
 
 const boardsRouter = require('./boards.router');
 const columnsRouter = require('./columns.router');
-const usersRouter = require('./users.router');
+const usersRouter = require('./user.router');
 const tasksRouter = require('./tasks.router');
 const subtasksRouter = require('./subtasks.router');
 const authRouter = require('./auth.router');
@@ -10,7 +10,7 @@ const authRouter = require('./auth.router');
 const apiRouter = express.Router();
 
 // /users
-apiRouter.use('/users', usersRouter);
+apiRouter.use('/user', usersRouter);
 
 // /boards
 apiRouter.use('/boards', boardsRouter);
