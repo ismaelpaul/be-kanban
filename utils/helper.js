@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 exports.hashPassword = (password) => {
 	const salt = bcrypt.genSaltSync();
@@ -7,4 +8,8 @@ exports.hashPassword = (password) => {
 
 exports.comparePassword = (raw, hash) => {
 	return bcrypt.compareSync(raw, hash);
+};
+
+exports.generateToken = (user_id) => {
+	return jwt.sign(user_id, process.env.JWT_SECRET);
 };
