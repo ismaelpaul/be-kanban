@@ -18,7 +18,7 @@ exports.insertGoogleOrGithubUser = async (user) => {
 exports.checkUserExistsByEmail = async (email) => {
 	try {
 		const result = await db.query(
-			`SELECT users.user_id, users.first_name, users.last_name, users.email, users.avatar FROM users WHERE email = $1;`,
+			`SELECT users.user_id, users.first_name, users.last_name, users.email, users.password, users.avatar FROM users WHERE email = $1;`,
 			[email]
 		);
 
