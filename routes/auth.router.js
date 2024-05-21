@@ -1,6 +1,6 @@
 const express = require('express');
 const passport = require('passport');
-const { registerUser } = require('../controllers/auth.controller');
+const jwt = require('jsonwebtoken');
 
 const authRouter = express.Router();
 
@@ -15,12 +15,33 @@ authRouter
 	.route('/google')
 	.get(passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-authRouter.route('/google/callback').get(
-	passport.authenticate('google', {
-		successRedirect: `${CLIENT_URL}/boards`,
-		failureRedirect: `${CLIENT_URL}/login`,
-	})
-);
+authRouter
+	.route('/google/callback')
+	.get(passport.authenticate('google', { session: false }), (req, res) => {
+		try {
+			if (!req.user) {
+				throw new Error('User not authenticated');
+			}
+
+			// Generate JWT token
+			const token = jwt.sign(req.user.user_id, process.env.JWT_SECRET);
+
+			// Set token as a cookie
+			res.cookie('token', token, {
+				path: '/',
+				httpOnly: true,
+				expires: new Date(Date.now() + 1000 * 86400), //1 day,
+				sameSite: 'none',
+				secure: true,
+			});
+
+			// Perform redirection
+			res.redirect(`${CLIENT_URL}/boards`);
+		} catch (error) {
+			console.error(error);
+			res.status(500).send({ error: error.message });
+		}
+	});
 
 authRouter
 	.route('/github')
@@ -32,14 +53,5 @@ authRouter.route('/github/callback').get(
 		failureRedirect: '/login/failed',
 	})
 );
-
-authRouter.route('/login').post(passport.authenticate('local'), (req, res) => {
-	const user = req.user;
-	res.status(200).send(user);
-});
-
-authRouter.route('/register').post(registerUser);
-
-authRouter.route('/logout').post();
 
 module.exports = authRouter;
