@@ -9,15 +9,14 @@ const {
 	addColumnsByBoardId,
 	patchBoardNameById,
 } = require('../controllers/boards.controllers');
+const { isAuthenticated } = require('../middleware/auth.middleware');
 
 const boardsRouter = express.Router();
 
-boardsRouter.use((req, res, next) => {
-	if (req.user) next();
-	else res.status(401).send({ message: 'Not authorized, please log in' });
-});
-
-boardsRouter.route('/').get(getBoards).post(addNewBoardAndColumns);
+boardsRouter
+	.route('/')
+	.get(isAuthenticated, getBoards)
+	.post(addNewBoardAndColumns);
 
 boardsRouter
 	.route('/:board_id')
