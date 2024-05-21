@@ -14,3 +14,11 @@ exports.insertUser = (first_name, last_name, email, password) => {
 			return result.rows[0];
 		});
 };
+
+exports.checkEmailExists = (email) => {
+	return db
+		.query(`SELECT EXISTS (SELECT 1 FROM users WHERE email = ($1))`, [email])
+		.then((result) => {
+			return result.rows[0].exists;
+		});
+};
