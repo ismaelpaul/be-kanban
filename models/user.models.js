@@ -1,7 +1,14 @@
 const db = require('../db/connection');
 
-exports.selectUsers = () => {
-	return db.query(`SELECT * FROM users`).then((result) => result.rows);
+exports.selectUserById = (user_id) => {
+	return db
+		.query(
+			`SELECT users.user_id, users.first_name, users.last_name, users.email, users.avatar FROM users WHERE user_id = $1;`,
+			[user_id]
+		)
+		.then((result) => {
+			return result.rows[0];
+		});
 };
 
 exports.insertUser = (first_name, last_name, email, password) => {
