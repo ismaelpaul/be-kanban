@@ -1,8 +1,8 @@
 const { checkUserExistsByEmail } = require('../models/auth.models');
 const {
-	selectUsers,
 	insertUser,
 	checkEmailExists,
+	selectUserById,
 } = require('../models/user.models');
 const {
 	hashPassword,
@@ -10,8 +10,22 @@ const {
 	comparePassword,
 } = require('../utils/helper');
 
-exports.getUsers = async (req, res, next) => {
-	selectUsers()
+exports.getUser = (req, res, next) => {
+	const user_id = req.user.user_id;
+
+	selectUserById(user_id)
+		.then((user) => {
+			if (!user) {
+				return res.status(404).send({ error: 'User not found' });
+			}
+			res.status(200).send({ user });
+		})
+		.catch(next);
+};
+
+exports.getUserById = (req, res, next) => {
+	const { user_id } = req.body;
+	selectUserById(user_id)
 		.then((users) => {
 			res.status(200).send({ users });
 		})
