@@ -1,14 +1,17 @@
 const express = require('express');
 const {
-	getUsers,
 	registerUser,
 	checkEmail,
 	loginUser,
+	getUserById,
+	getUser,
 } = require('../controllers/user.controllers');
+const { isAuthenticated } = require('../middleware/auth.middleware');
 
 const usersRouter = express.Router();
 
-usersRouter.route('/').get(getUsers);
+usersRouter.route('/').get(isAuthenticated, getUser);
+usersRouter.route('/:user_id').get(getUserById);
 usersRouter.route('/login').post(loginUser);
 usersRouter.route('/register').post(registerUser);
 usersRouter.route('/check-email').get(checkEmail);
