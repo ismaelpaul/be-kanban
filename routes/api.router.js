@@ -24,6 +24,4 @@ apiRouter.use('/tasks', tasksRouter);
 // /tasks
 apiRouter.use('/subtasks', subtasksRouter);
 
-apiRouter.use('/auth', authRouter);
-
 module.exports = apiRouter;
