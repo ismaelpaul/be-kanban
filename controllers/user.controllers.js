@@ -1,4 +1,5 @@
 const { checkUserExistsByEmail } = require('../models/auth.models');
+const { insertBoard } = require('../models/boards.models');
 const {
 	insertUser,
 	checkEmailExists,
@@ -89,6 +90,8 @@ exports.registerUser = async (req, res) => {
 		const hashedPassword = hashPassword(password);
 		insertUser(firstName, lastName, email, hashedPassword).then((user) => {
 			if (user) {
+				const name = 'New Board';
+				insertBoard(user.user_id, name);
 				const token = generateToken(user.user_id);
 
 				res.cookie('token', token, {
