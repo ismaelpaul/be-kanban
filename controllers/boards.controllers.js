@@ -12,7 +12,8 @@ const {
 } = require('../models/columns.models');
 
 exports.getBoards = (req, res, next) => {
-	selectBoards()
+	const user_id = req.user.user_id;
+	selectBoards(user_id)
 		.then((boards) => {
 			res.status(200).send({ boards });
 		})
@@ -51,7 +52,7 @@ exports.getColumnsByBoardId = (req, res, next) => {
 exports.addNewBoardAndColumns = (req, res, next) => {
 	const newBoard = req.body;
 	const { name } = newBoard;
-	const user_id = 1; // set this value for now
+	const user_id = req.user.user_id;
 
 	const boardNameCapitalised = name
 		.trim()
@@ -126,6 +127,8 @@ exports.addColumnsByBoardId = (req, res, next) => {
 	});
 
 	Promise.all(columnPromises)
-		.then(() => res.status(201).send({ columns }))
+		.then((columns) => {
+			res.status(201).send(columns);
+		})
 		.catch(next);
 };
