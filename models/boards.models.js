@@ -1,8 +1,10 @@
 const db = require('../db/connection');
 
-exports.selectBoards = () => {
+exports.selectBoards = (user_id) => {
 	return db
-		.query(`SELECT * FROM boards ORDER BY board_id`)
+		.query(`SELECT * FROM boards WHERE boards.user_id = $1 ORDER BY board_id`, [
+			user_id,
+		])
 		.then((result) => result.rows);
 };
 
