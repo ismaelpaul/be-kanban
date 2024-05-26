@@ -6,6 +6,7 @@ const {
 	insertGoogleOrGithubUser,
 } = require('./models/auth.models');
 const { comparePassword } = require('./utils/helper');
+const { insertBoard } = require('./models/boards.models');
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
@@ -35,6 +36,9 @@ passport.use(
 					};
 
 					const newUser = await insertGoogleOrGithubUser(user);
+
+					const name = 'New Board';
+					await insertBoard(newUser.user_id, name);
 
 					done(null, newUser);
 				}
