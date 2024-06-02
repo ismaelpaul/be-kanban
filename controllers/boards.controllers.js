@@ -112,23 +112,28 @@ exports.patchColumnsByBoardId = (req, res, next) => {
 		.catch(next);
 };
 
-exports.addColumnsByBoardId = (req, res, next) => {
+exports.addColumnsByBoardId = async (req, res, next) => {
 	const { board_id } = req.params;
 	const columns = req.body;
 
-	const columnPromises = columns.map((column) => {
-		const columnNameCapitalised = column.name
-			.trim()
-			.split(' ')
-			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-			.join(' ');
+	try {
+		const insertedColumns = [];
+		for (const column of columns) {
+			const columnNameCapitalised = column.name
+				.trim()
+				.split(' ')
+				.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+				.join(' ');
 
-		return insertColumn({ board_id, name: columnNameCapitalised });
-	});
+			const insertedColumn = await insertColumn({
+				board_id,
+				name: columnNameCapitalised,
+			});
+			insertedColumns.push(insertedColumn);
+		}
 
-	Promise.all(columnPromises)
-		.then((columns) => {
-			res.status(201).send(columns);
-		})
-		.catch(next);
+		res.status(201).send(insertedColumns);
+	} catch (err) {
+		next(err);
+	}
 };
