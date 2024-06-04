@@ -6,21 +6,25 @@ exports.isAuthenticated = async (req, res, next) => {
 		const token = req.cookies.token;
 
 		if (!token) {
-			res.status(401);
-			throw new Error('Not authorized, please log in');
+			return res.status(401).json({ message: 'Not authorized, please log in' });
 		}
 
 		const verified = jwt.verify(token, process.env.JWT_SECRET);
 
-		const existingUser = await checkUserExistsById(verified);
+		const user_id = verified.user_id;
+
+		if (!user_id) {
+			return res.status(401).json({ message: 'Invalid token' });
+		}
+
+		const existingUser = await checkUserExistsById(user_id);
 
 		if (!existingUser.userExists) {
-			res.status(401);
-			throw new Error('User not found');
+			return res.status(401).json({ message: 'User not found' });
 		}
 		req.user = existingUser.user;
 		next();
 	} catch (error) {
-		res.status(401).send('Not authorized, please log in.');
+		return res.status(401).send('Not authorized, please log in.');
 	}
 };
