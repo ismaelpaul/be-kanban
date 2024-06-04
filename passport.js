@@ -1,16 +1,12 @@
 const passport = require('passport');
-const jwt = require('jsonwebtoken');
 const {
 	checkUserExistsByEmail,
-	checkUserExistsById,
 	insertGoogleOrGithubUser,
 } = require('./models/auth.models');
-const { comparePassword } = require('./utils/helper');
 const { insertBoard } = require('./models/boards.models');
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
-const LocalStrategy = require('passport-local').Strategy;
 
 passport.use(
 	new GoogleStrategy(
@@ -26,7 +22,7 @@ passport.use(
 				const existingUser = await checkUserExistsByEmail(payload.email);
 
 				if (existingUser.userExists) {
-					done(null, existingUser.user);
+					return done(null, existingUser.user);
 				} else {
 					const user = {
 						first_name: payload.given_name,
@@ -37,14 +33,16 @@ passport.use(
 
 					const newUser = await insertGoogleOrGithubUser(user);
 
-					const name = 'New Board';
-					await insertBoard(newUser.user_id, name);
+					if (newUser) {
+						const boardName = 'New Board';
+						await insertBoard(newUser.user_id, boardName);
+					}
 
-					done(null, newUser);
+					return done(null, newUser);
 				}
 			} catch (error) {
 				console.error(error.message);
-				done(null, false);
+				return done(null, false);
 			}
 		}
 	)
@@ -77,7 +75,7 @@ passport.use(
 					const existingUser = await checkUserExistsByEmail(primaryEmail.email);
 
 					if (existingUser.userExists) {
-						done(null, existingUser.user);
+						return done(null, existingUser.user);
 					} else {
 						const nameArray = profile.displayName.split(' ');
 						const firstName = nameArray[0];
@@ -91,64 +89,21 @@ passport.use(
 						};
 
 						const newUser = await insertGoogleOrGithubUser(user);
+						if (newUser) {
+							const boardName = 'New Board';
+							await insertBoard(newUser.user_id, boardName);
+						}
 
-						done(null, newUser);
+						return done(null, newUser);
 					}
 				} else {
 					console.error('No primary email found.');
-					done(null, false);
+					return done(null, false);
 				}
-				done(null, profile);
 			} catch (error) {
 				console.error(error.message);
-				done(null, false);
+				return done(null, false);
 			}
 		}
 	)
 );
-
-passport.use(
-	new LocalStrategy({ usernameField: 'email' }, async function (
-		email,
-		password,
-		done
-	) {
-		if (!email || !password) {
-			throw new Error('Missing credentials');
-		}
-
-		const userExists = await checkUserExistsByEmail(email);
-
-		if (!userExists) {
-			throw new Error('User not found');
-		}
-
-		const userDB = userExists.user;
-
-		const userPassword = userExists.user.password;
-
-		const isValid = comparePassword(password, userPassword);
-
-		if (isValid) {
-			return done(null, userDB);
-		} else {
-			return done(null, false, {
-				message: 'Unauthorized, please login!',
-			});
-		}
-	})
-);
-
-passport.serializeUser((user, done) => {
-	done(null, user.user_id);
-});
-
-passport.deserializeUser(async (id, done) => {
-	try {
-		const user = await checkUserExistsById(id);
-		if (!user) throw new Error('User not found');
-		done(null, user.user);
-	} catch (error) {
-		console.log(error);
-	}
-});
