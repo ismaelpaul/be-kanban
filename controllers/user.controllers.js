@@ -81,6 +81,17 @@ exports.loginUser = async (req, res) => {
 	});
 };
 
+exports.logoutUser = (req, res) => {
+	res.cookie('token', '', {
+		path: '/',
+		httpOnly: true,
+		expires: new Date(0), // expires cookie
+		sameSite: 'none',
+		secure: true,
+	});
+	return res.status(200).json({ message: 'Logged out successfully' });
+};
+
 exports.registerUser = async (req, res) => {
 	const { firstName, lastName, email, password } = req.body;
 
