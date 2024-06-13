@@ -11,5 +11,6 @@ exports.comparePassword = (raw, hash) => {
 };
 
 exports.generateToken = (user_id) => {
-	return jwt.sign(user_id, process.env.JWT_SECRET);
+	const payload = { user_id };
+	return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' });
 };
