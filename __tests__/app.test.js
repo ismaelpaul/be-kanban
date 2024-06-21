@@ -3,7 +3,8 @@ const app = require('../app');
 const db = require('../db/connection');
 const seed = require('../db/seeds/seed');
 const devData = require('../db/data/test-data/data.json');
-
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 beforeEach(() => seed({ data: devData }));
 
 afterAll(() => db.end());
@@ -11,8 +12,13 @@ afterAll(() => db.end());
 describe('/api/boards', () => {
 	describe('GET', () => {
 		test('200: responds with an array of boards objects', () => {
+			const token = jwt.sign({ user_id: 1 }, process.env.JWT_SECRET, {
+				expiresIn: '1h',
+			});
+
 			return request(app)
 				.get('/api/boards')
+				.set('Cookie', `token=${token}`)
 				.expect(200)
 				.then((response) => {
 					const allBoards = response.body.boards;
@@ -27,21 +33,28 @@ describe('/api/boards', () => {
 				});
 		});
 	});
+
 	describe('POST', () => {
 		test('201: responds with a baord newly added to the database', () => {
 			const newBoard = {
 				user_id: 1,
-				board_name: 'Production',
-				columns: [{ column_name: '' }, { column_name: '' }],
+				name: 'Production',
+				columns: [{ name: 'To Do' }, { name: 'Doing' }],
 			};
+
+			const token = jwt.sign({ user_id: 1 }, process.env.JWT_SECRET, {
+				expiresIn: '1h',
+			});
+
 			return request(app)
 				.post('/api/boards')
+				.set('Cookie', `token=${token}`)
 				.send(newBoard)
 				.expect(201)
 				.then((response) => {
 					expect(response.body.board).toEqual({
-						user_id: 1,
 						board_id: 4,
+						user_id: 1,
 						name: 'Production',
 					});
 				});
@@ -159,24 +172,25 @@ describe('/api/columns/:column_id/tasks', () => {
 	});
 });
 
-describe('/api/users', () => {
+describe('/api/user', () => {
 	describe('GET', () => {
-		test('200: responds with an array of users objects', () => {
+		test('200: responds with the logged in user object', () => {
+			const token = jwt.sign({ user_id: 1 }, process.env.JWT_SECRET, {
+				expiresIn: '1h',
+			});
 			return request(app)
-				.get('/api/users')
+				.get('/api/user')
+				.set('Cookie', `token=${token}`)
 				.expect(200)
 				.then((response) => {
-					const allUsers = response.body.users;
+					const user = response.body.user;
 					expect(typeof response.body).toBe('object');
-					expect(Array.isArray(allUsers)).toBe(true);
-					expect(allUsers.length > 0).toBe(true);
-					allUsers.forEach((board) => {
-						expect(board).toHaveProperty('user_id', expect.any(Number));
-						expect(board).toHaveProperty('first_name', expect.any(String));
-						expect(board).toHaveProperty('last_name', expect.any(String));
-						expect(board).toHaveProperty('email', expect.any(String));
-						expect(board).toHaveProperty('password', expect.any(String));
-					});
+
+					expect(user).toHaveProperty('user_id', expect.any(Number));
+					expect(user).toHaveProperty('first_name', expect.any(String));
+					expect(user).toHaveProperty('last_name', expect.any(String));
+					expect(user).toHaveProperty('email', expect.any(String));
+					expect(user).toHaveProperty('avatar', expect.any(String));
 				});
 		});
 	});
