@@ -16,7 +16,7 @@ const boardsRouter = express.Router();
 boardsRouter
 	.route('/')
 	.get(isAuthenticated, getBoards)
-	.post(addNewBoardAndColumns);
+	.post(isAuthenticated, addNewBoardAndColumns);
 
 boardsRouter
 	.route('/:board_id')
