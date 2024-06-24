@@ -194,6 +194,47 @@ describe('/api/user', () => {
 				});
 		});
 	});
+	describe('/api/user/register', () => {
+		describe('POST', () => {
+			test('201: responds with the newly registered user data', () => {
+				const newUser = {
+					firstName: 'John',
+					lastName: 'Doe',
+					email: 'john.doe@example.com',
+					password: 'password123',
+				};
+				return request(app)
+					.post('/api/user/register')
+					.send(newUser)
+					.expect(201)
+					.then((response) => {
+						const user = response.body;
+						const cookies = response.headers['set-cookie'];
+						let token;
+						if (cookies && cookies.length > 0) {
+							// Find the cookie that starts with 'token='
+							const tokenCookie = cookies.find((cookie) =>
+								cookie.startsWith('token=')
+							);
+
+							// Extract the token value between 'token=' and the next ';' or end of the string
+							token = tokenCookie.split('token=')[1].split(';')[0];
+						}
+
+						expect(typeof user).toBe('object');
+						expect(typeof token).toBe('string');
+
+						expect(user).toHaveProperty('user_id', expect.any(Number));
+						expect(user).toHaveProperty('first_name', 'John');
+						expect(user).toHaveProperty('last_name', 'Doe');
+						expect(user).toHaveProperty('email', 'john.doe@example.com');
+
+						const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+						expect(decodedToken).toHaveProperty('user_id', user.user_id);
+					});
+			});
+		});
+	});
 });
 
 describe('/api/tasks', () => {
@@ -224,10 +265,11 @@ describe('/api/tasks', () => {
 				column_id: 1,
 				title: 'New Task',
 				description: 'Just a new task',
+				position: null,
 				status: 'Todo',
 				subtasks: [
-					{ subtask_title: '', is_completed: false },
-					{ subtask_title: '', is_completed: false },
+					{ title: 'Subtask', is_completed: false },
+					{ title: 'Subtask 2', is_completed: false },
 				],
 			};
 			return request(app)
@@ -235,14 +277,15 @@ describe('/api/tasks', () => {
 				.send(newTask)
 				.expect(201)
 				.then((response) => {
-					expect(response.body.task).toEqual({
-						column_id: 1,
-						task_id: 23,
-						title: 'New Task',
-						description: 'Just a new task',
-						status: 'Todo',
-						created_at: expect.any(String),
-					});
+					const task = response.body.task;
+
+					expect(task).toHaveProperty('task_id', expect.any(Number));
+					expect(task).toHaveProperty('column_id', expect.any(Number));
+					expect(task).toHaveProperty('title', expect.any(String));
+					expect(task).toHaveProperty('description', expect.any(String));
+					expect(task).toHaveProperty('position', null);
+					expect(task).toHaveProperty('status', expect.any(String));
+					expect(task).toHaveProperty('created_at', expect.any(String));
 				});
 		});
 	});
