@@ -5,7 +5,9 @@ exports.selectBoards = (user_id) => {
 		.query(`SELECT * FROM boards WHERE boards.user_id = $1 ORDER BY board_id`, [
 			user_id,
 		])
-		.then((result) => result.rows);
+		.then((result) => {
+			return result.rows;
+		});
 };
 
 exports.selectBoardsById = (board_id) => {
