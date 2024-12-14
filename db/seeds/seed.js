@@ -37,6 +37,7 @@ const seed = async ({ data }) => {
     title VARCHAR(250) NOT NULL,
     description TEXT NOT NULL,
     status VARCHAR(25) NOT NULL,
+	is_completed BOOLEAN NOT NULL,
 	position INT,
     created_at TIMESTAMP DEFAULT NOW()
   );`);
@@ -109,11 +110,12 @@ const seed = async ({ data }) => {
 			for (const taskData of column.tasks) {
 				// Insert data for tasks and set the position
 				const taskInsertQuery = format(
-					'INSERT INTO tasks (column_id, title, description, status, position) VALUES (%L, %L, %L, %L, %L) RETURNING *',
+					'INSERT INTO tasks (column_id, title, description, status, is_completed, position) VALUES (%L, %L, %L, %L, %L, %L) RETURNING *',
 					currentColumnId,
 					taskData.title,
 					taskData.description,
 					taskData.status,
+					false,
 					currentPosition
 				);
 
