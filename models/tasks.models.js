@@ -79,6 +79,13 @@ exports.updateTaskPositionAndStatusByTaskId = (
 				);
 			})
 			.then(() => {
+				// Select the updated rows ordered by position
+				return db.query(
+					'SELECT * FROM tasks WHERE column_id = $1 ORDER BY position;',
+					[newColumn_id]
+				);
+			})
+			.then(() => {
 				return db.query('COMMIT');
 			})
 			.then((result) => {
