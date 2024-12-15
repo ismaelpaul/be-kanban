@@ -7,6 +7,7 @@ const {
 	addNewSubtaskByTaskId,
 	patchTaskPositionAndStatusByTaskId,
 	patchTaskByTaskId,
+	updateCompletionTask,
 } = require('../controllers/tasks.controllers');
 
 const tasksRouter = express.Router();
@@ -14,6 +15,8 @@ const tasksRouter = express.Router();
 tasksRouter.route('/').get(getTasks).post(addNewTaskAndSubtasks);
 
 tasksRouter.route('/:task_id').delete(deleteTaskById).patch(patchTaskByTaskId);
+
+tasksRouter.route('/:task_id/completion').patch(updateCompletionTask);
 
 tasksRouter
 	.route('/:task_id/position-status')
