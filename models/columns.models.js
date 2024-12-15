@@ -9,12 +9,12 @@ exports.selectColumns = () => {
 exports.selectTasksByColumnId = async (column_id) => {
 	try {
 		const result = await db.query(
-			`SELECT tasks.task_id, tasks.column_id, tasks.description, tasks.title, tasks.status, tasks.position, 
+			`SELECT tasks.task_id, tasks.column_id, tasks.description, tasks.title, tasks.status, tasks.is_completed, tasks.position, 
 		  (SELECT json_agg(subtasks ORDER BY subtasks.subtask_id ASC) FROM subtasks WHERE subtasks.task_id = tasks.task_id) AS subtasks
 		  FROM tasks 
 		  LEFT JOIN columns ON tasks.column_id = columns.column_id 
 		  WHERE columns.column_id=$1 
-		  ORDER BY position;`,
+		  ORDER BY tasks.position ASC;`,
 			[column_id]
 		);
 		return result.rows;
