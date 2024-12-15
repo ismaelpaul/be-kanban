@@ -154,3 +154,14 @@ exports.updateTaskByTaskId = (task_id, title, description) => {
 		return result.rows;
 	});
 };
+
+exports.updateTaskCompletion = (is_completed, task_id) => {
+	return db
+		.query(
+			'UPDATE tasks SET is_completed = $1 WHERE tasks.task_id = $2 RETURNING *',
+			[is_completed, task_id]
+		)
+		.then((result) => {
+			return result.rows;
+		});
+};
