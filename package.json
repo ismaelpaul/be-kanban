@@ -36,7 +36,8 @@
 		"jest-sorted": "^1.0.14",
 		"nodemon": "^3.0.1",
 		"pg-format": "^1.0.4",
-		"supertest": "^6.3.3"
+		"supertest": "^6.3.3",
+		"ws": "^8.18.0"
 	},
 	"jest": {
 		"setupFilesAfterEnv": [
