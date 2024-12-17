@@ -117,7 +117,9 @@ exports.updateCompletionTask = (req, res, next) => {
 	const { task_id } = req.params;
 	const { is_completed } = req.body;
 
-	updateTaskCompletion(is_completed, task_id).then((task) => {
-		res.status(200).send(task);
-	});
+	updateTaskCompletion(is_completed, task_id)
+		.then((task) => {
+			res.status(200).send(task);
+		})
+		.catch(next);
 };
