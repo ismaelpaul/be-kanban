@@ -1,8 +1,16 @@
+const http = require('http');
 const app = require('./app');
+const setupWebSocketServer = require('./websocket');
+const PORT = process.env.PORT || 9090;
 
-const { PORT = 9090 } = process.env;
+// Create an HTTP server and attach Express
+const server = http.createServer(app);
 
-app.listen(PORT, (err) => {
-	if (err) throw err;
-	console.log(`Listening on ${PORT}...`);
+// Pass the HTTP server to the WebSocket setup
+setupWebSocketServer(server);
+
+// Start the server
+server.listen(PORT, () => {
+	console.log(`HTTP server running on http://localhost:${PORT}`);
+	console.log(`WebSocket server available at ws://localhost:${PORT}/ws`);
 });
