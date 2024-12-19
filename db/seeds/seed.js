@@ -8,6 +8,8 @@ const seed = async ({ data }) => {
 	await db.query(`DROP TABLE IF EXISTS tasks`);
 	await db.query(`DROP TABLE IF EXISTS columns`);
 	await db.query(`DROP TABLE IF EXISTS boards`);
+	await db.query(`DROP TABLE IF EXISTS team_members`);
+	await db.query(`DROP TABLE IF EXISTS teams`);
 	await db.query(`DROP TABLE IF EXISTS users`);
 
 	await db.query(`CREATE TABLE users (
@@ -17,44 +19,58 @@ const seed = async ({ data }) => {
 		email VARCHAR(50) DEFAULT 'admin@admin.com',
 		password VARCHAR DEFAULT 'null',
 		avatar VARCHAR DEFAULT 'https://i.ibb.co/4pDNDk1/avatar.png'
-  );`);
+	);`);
+
+	await db.query(`CREATE TABLE teams (
+		team_id SERIAL PRIMARY KEY,
+		name VARCHAR(100) NOT NULL
+	);`);
+
+	await db.query(`CREATE TABLE team_members (
+		team_member_id SERIAL PRIMARY KEY,
+    	user_id INT REFERENCES users(user_id),
+    	team_id INT REFERENCES teams(team_id),
+    	role VARCHAR(20) DEFAULT 'member',
+		UNIQUE (user_id, team_id)
+	);`);
 
 	await db.query(`CREATE TABLE boards (
-    board_id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(user_id),
-    name VARCHAR(50) NOT NULL
-  );`);
+		board_id SERIAL PRIMARY KEY,
+		user_id INT REFERENCES users(user_id),
+		team_id INT REFERENCES teams(team_id),
+		name VARCHAR(50) NOT NULL
+	);`);
 
 	await db.query(`CREATE TABLE columns (
-    column_id SERIAL PRIMARY KEY,
-    board_id INT REFERENCES boards(board_id),
-    name VARCHAR(50) NOT NULL
-  );`);
+    	column_id SERIAL PRIMARY KEY,
+    	board_id INT REFERENCES boards(board_id),
+    	name VARCHAR(50) NOT NULL
+ 	);`);
 
 	await db.query(`CREATE TABLE tasks (
-    task_id SERIAL PRIMARY KEY,
-    column_id INT REFERENCES columns(column_id),
-    title VARCHAR(250) NOT NULL,
-    description TEXT NOT NULL,
-    status VARCHAR(25) NOT NULL,
-	is_completed BOOLEAN NOT NULL,
-	position INT,
-    created_at TIMESTAMP DEFAULT NOW()
-  );`);
+    	task_id SERIAL PRIMARY KEY,
+    	column_id INT REFERENCES columns(column_id),
+    	title VARCHAR(250) NOT NULL,
+    	description TEXT NOT NULL,
+    	status VARCHAR(25) NOT NULL,
+		is_completed BOOLEAN NOT NULL,
+		position INT,
+    	created_at TIMESTAMP DEFAULT NOW()
+  	);`);
 
 	await db.query(`CREATE TABLE subtasks (
-    subtask_id SERIAL PRIMARY KEY,
-    task_id INT REFERENCES tasks(task_id),
-    title VARCHAR(250) NOT NULL,
-    is_completed BOOLEAN NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
-  );`);
+    	subtask_id SERIAL PRIMARY KEY,
+    	task_id INT REFERENCES tasks(task_id),
+    	title VARCHAR(250) NOT NULL,
+    	is_completed BOOLEAN NOT NULL,
+    	created_at TIMESTAMP DEFAULT NOW()
+  	);`);
 
 	const newUserQuery = `
-  INSERT INTO users (first_name, last_name, email, password, avatar)
-  VALUES ($1, $2, $3, $4, $5)
-  RETURNING *;
-`;
+  		INSERT INTO users (first_name, last_name, email, password, avatar)
+  		VALUES ($1, $2, $3, $4, $5)
+  		RETURNING *;
+	`;
 
 	const newUserValues = [
 		'Admin',
@@ -67,12 +83,34 @@ const seed = async ({ data }) => {
 	const newUserResult = await db.query(newUserQuery, newUserValues);
 	const userId = newUserResult.rows[0].user_id;
 
+	// Insert a new team into the teams table
+	const insertTeamResult = await db.query(`
+    	INSERT INTO teams (name)
+    	VALUES ('Digital Team')
+    	RETURNING team_id;
+	`);
+
+	const teamId = insertTeamResult.rows[0].team_id;
+
+	// Associate the user with the team in the team_members table
+	await db.query(
+		`
+    	INSERT INTO team_members (user_id, team_id, role)
+    	VALUES ($1, $2, 'admin');
+	`,
+		[userId, teamId]
+	);
+
 	// Format and insert data into the 'boards' table
 	const formattedData = formatData(data);
 
-	const boardsData = formattedData.boards.map((board) => [board.name, userId]);
+	const boardsData = formattedData.boards.map((board) => [
+		board.name,
+		userId,
+		1,
+	]);
 	const boardsInsertQuery = format(
-		'INSERT INTO boards (name, user_id) VALUES %L RETURNING *',
+		'INSERT INTO boards (name, user_id, team_id) VALUES %L RETURNING *',
 		boardsData
 	);
 	const boardRows = await db
