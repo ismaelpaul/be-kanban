@@ -4,6 +4,7 @@ const {
 	insertUser,
 	checkEmailExists,
 	selectUserById,
+	selectUsersByTeamId,
 } = require('../models/user.models');
 const {
 	hashPassword,
@@ -129,4 +130,12 @@ exports.checkEmail = async (req, res) => {
 	const userExists = await checkEmailExists(email);
 
 	res.status(200).send(userExists);
+};
+
+exports.getUsersByTeamId = async (req, res) => {
+	const { team_id } = req.params;
+
+	selectUsersByTeamId(team_id).then((teamMembers) => {
+		res.status(200).send({ teamMembers });
+	});
 };
