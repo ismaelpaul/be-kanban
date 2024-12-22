@@ -18,3 +18,20 @@ exports.selectTeamByUserId = async (user_id) => {
 			return result.rows;
 		});
 };
+
+exports.selectBoardsByTeamId = async (team_id) => {
+	return await db
+		.query(
+			`SELECT 
+                boards.board_id, 
+                boards.name
+            FROM 
+                boards
+            WHERE 
+                boards.team_id = $1;`,
+			[team_id]
+		)
+		.then((result) => {
+			return result.rows;
+		});
+};
