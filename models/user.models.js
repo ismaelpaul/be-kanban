@@ -33,7 +33,7 @@ exports.checkEmailExists = (email) => {
 exports.selectUsersByTeamId = async (team_id) => {
 	return await db
 		.query(
-			`SELECT users.first_name, users.last_name, users.avatar, team_members.role FROM team_members JOIN users ON team_members.user_id = users.user_id WHERE team_members.team_id = $1;`,
+			`SELECT users.user_id, users.first_name, users.last_name, users.avatar, team_members.role FROM team_members JOIN users ON team_members.user_id = users.user_id WHERE team_members.team_id = $1;`,
 			[team_id]
 		)
 		.then((result) => {
