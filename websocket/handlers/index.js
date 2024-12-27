@@ -1,5 +1,7 @@
-const taskHandlers = require('./tasks');
+const tasksHandlers = require('./tasks');
+const subtasksHandlers = require('./subtasks');
 
 module.exports = {
-	...taskHandlers,
+	...tasksHandlers,
+	...subtasksHandlers,
 };
