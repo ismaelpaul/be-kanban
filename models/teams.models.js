@@ -35,3 +35,9 @@ exports.selectBoardsByTeamId = async (team_id) => {
 			return result.rows;
 		});
 };
+
+exports.getTeamIdByUserId = async (user_id) => {
+	return await db.query('SELECT team_id FROM team_members WHERE user_id = $1', [
+		user_id,
+	]);
+};
