@@ -5,12 +5,14 @@ const columnsRouter = require('./columns.router');
 const usersRouter = require('./user.router');
 const tasksRouter = require('./tasks.router');
 const subtasksRouter = require('./subtasks.router');
-const authRouter = require('./auth.router');
+const teamsRouter = require('./teams.router');
 
 const apiRouter = express.Router();
 
+apiRouter.use('/teams', teamsRouter);
+
 // /users
-apiRouter.use('/user', usersRouter);
+apiRouter.use('/users', usersRouter);
 
 // /boards
 apiRouter.use('/boards', boardsRouter);
