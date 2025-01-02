@@ -36,7 +36,6 @@ const seed = async ({ data }) => {
 
 	await db.query(`CREATE TABLE boards (
 		board_id SERIAL PRIMARY KEY,
-		user_id INT REFERENCES users(user_id),
 		team_id INT REFERENCES teams(team_id),
 		name VARCHAR(50) NOT NULL
 	);`);
@@ -104,13 +103,9 @@ const seed = async ({ data }) => {
 	// Format and insert data into the 'boards' table
 	const formattedData = formatData(data);
 
-	const boardsData = formattedData.boards.map((board) => [
-		board.name,
-		userId,
-		1,
-	]);
+	const boardsData = formattedData.boards.map((board) => [board.name, 1]);
 	const boardsInsertQuery = format(
-		'INSERT INTO boards (name, user_id, team_id) VALUES %L RETURNING *',
+		'INSERT INTO boards (name, team_id) VALUES %L RETURNING *',
 		boardsData
 	);
 	const boardRows = await db
