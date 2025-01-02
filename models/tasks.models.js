@@ -33,8 +33,8 @@ exports.selectSubtasksByTaskId = (task_id) => {
 exports.insertTask = (column_id, title, description, status) => {
 	return db
 		.query(
-			`INSERT INTO tasks (column_id, title, description, status) VALUES ($1, $2, $3, $4) RETURNING *;`,
-			[column_id, title, description, status]
+			`INSERT INTO tasks (column_id, title, description, status, is_completed) VALUES ($1, $2, $3, $4, $5) RETURNING *;`,
+			[column_id, title, description, status, false]
 		)
 		.then((result) => {
 			return result.rows[0];
