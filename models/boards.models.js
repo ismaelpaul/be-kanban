@@ -61,13 +61,15 @@ exports.selectColumnsByBoardId = (board_id) => {
 		});
 };
 
-exports.insertBoard = (user_id, name) => {
+exports.insertBoard = (team_id, name) => {
 	return db
-		.query(`INSERT INTO boards (user_id, name) VALUES ($1, $2) RETURNING *;`, [
-			user_id,
+		.query(`INSERT INTO boards (team_id, name) VALUES ($1, $2) RETURNING *;`, [
+			team_id,
 			name,
 		])
 		.then((result) => {
+			console.log(result.rows[0], '<<<< result.rows[0]');
+
 			return result.rows[0];
 		});
 };
