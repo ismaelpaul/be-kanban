@@ -1,5 +1,9 @@
-const { insertBoard } = require('../../models/boards.models');
-const { insertColumn } = require('../../models/columns.models');
+const { insertBoard, updateBoardById } = require('../../models/boards.models');
+const {
+	insertColumn,
+	updateColumnNameById,
+	removeColumnsById,
+} = require('../../models/columns.models');
 
 module.exports = {
 	ADD_NEW_BOARD: async (payload) => {
@@ -33,6 +37,49 @@ module.exports = {
 			return {
 				type: 'BOARD_ADDED',
 				board: newBoard,
+			};
+		} catch (error) {
+			return {
+				type: 'ERROR',
+				message: error.message || 'An unexpected error occurred',
+			};
+		}
+	},
+	UPDATE_BOARD_INFO: async (payload) => {
+		const { board_id, name } = payload.board;
+
+		const columnsToDelete = payload.columns.toDelete;
+		const columnsToAdd = payload.columns.toAdd;
+		const columnsToEdit = payload.columns.toEdit;
+
+		try {
+			if (board_id && name) {
+				await updateBoardById(board_id, name);
+			}
+
+			// Handle deleted subtasks
+			if (columnsToDelete.length > 0) {
+				for (const column_id of columnsToDelete) {
+					await removeColumnsById(column_id);
+				}
+			}
+
+			// Handle new subtasks
+			if (columnsToAdd.length > 0) {
+				for (const column of columnsToAdd) {
+					await insertColumn(board_id, column.name);
+				}
+			}
+
+			// Handle edited subtasks
+			if (columnsToEdit.length > 0) {
+				for (const column of columnsToEdit) {
+					await updateColumnNameById(column.column_id, column.name);
+				}
+			}
+
+			return {
+				type: 'BOARD_INFO_UPDATED',
 			};
 		} catch (error) {
 			return {
