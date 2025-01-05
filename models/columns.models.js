@@ -23,8 +23,8 @@ exports.selectTasksByColumnId = async (column_id) => {
 	}
 };
 
-exports.insertColumn = ({ board_id, name }) => {
-	return db
+exports.insertColumn = async (board_id, name) => {
+	return await db
 		.query(
 			`INSERT INTO columns (board_id, name) VALUES ($1, $2) RETURNING *;`,
 			[board_id, name]
@@ -34,13 +34,13 @@ exports.insertColumn = ({ board_id, name }) => {
 		});
 };
 
-exports.updateColumnNameById = (column_id, name) => {
-	return db
+exports.updateColumnNameById = async (column_id, name) => {
+	return await db
 		.query(
 			`UPDATE columns 
-	SET name = $1  	
-	WHERE column_id = $2 
-	RETURNING *;`,
+			SET name = $1  	
+			WHERE column_id = $2 
+			RETURNING *;`,
 			[name, column_id]
 		)
 		.then((result) => {
@@ -48,8 +48,8 @@ exports.updateColumnNameById = (column_id, name) => {
 		});
 };
 
-exports.removeColumnsById = (column_id) => {
-	return db
+exports.removeColumnsById = async (column_id) => {
+	return await db
 		.query(
 			`DELETE FROM subtasks WHERE task_id IN (SELECT tasks.task_id FROM tasks WHERE column_id = $1);`,
 			[column_id]
