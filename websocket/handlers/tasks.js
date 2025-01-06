@@ -117,31 +117,29 @@ module.exports = {
 
 			// Handle deleted subtasks
 			if (subtasksToDelete.length > 0) {
-				const deletionSubtasksPromise = subtasksToDelete.map((subtask_id) =>
-					removeSubtask(subtask_id)
-				);
-				await Promise.all(deletionSubtasksPromise);
+				for (const subtask_id of subtasksToAdd) {
+					await removeSubtask(subtask_id);
+				}
 			}
 
 			// Handle new subtasks
 			if (subtasksToAdd.length > 0) {
-				const subtaskPromises = subtasksToAdd.map((subtask) => {
+				for (const subtask of subtasksToAdd) {
 					const title = subtask.title;
 					const is_completed = subtask.is_completed;
-					return insertSubtask(task_id, title, is_completed);
-				});
-				await Promise.all(subtaskPromises);
+
+					await insertSubtask(task_id, title, is_completed);
+				}
 			}
 
 			// Handle edited subtasks
 			if (subtasksToEdit.length > 0) {
-				const subtaskPromises = subtasksToEdit.map((subtask) => {
+				for (const subtask of subtasksToEdit) {
 					const { title } = subtask;
 					const subtask_id = subtask.id;
 
-					return updateSubtaskTitleById(title, subtask_id);
-				});
-				await Promise.all(subtaskPromises);
+					await updateSubtaskTitleById(title, subtask_id);
+				}
 			}
 
 			return {
