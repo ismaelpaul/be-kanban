@@ -28,7 +28,9 @@ exports.selectBoardsByTeamId = async (team_id) => {
             FROM 
                 boards
             WHERE 
-                boards.team_id = $1;`,
+                boards.team_id = $1
+			ORDER BY
+				boards.board_id;`,
 			[team_id]
 		)
 		.then((result) => {
