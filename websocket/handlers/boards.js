@@ -1,4 +1,8 @@
-const { insertBoard, updateBoardById } = require('../../models/boards.models');
+const {
+	insertBoard,
+	updateBoardById,
+	selectColumnsByBoardId,
+} = require('../../models/boards.models');
 const {
 	insertColumn,
 	updateColumnNameById,
@@ -53,39 +57,60 @@ module.exports = {
 		const columnsToEdit = payload.columns.toEdit;
 
 		try {
+			let updatedBoard = null;
+			const updatedColumns = [];
+
+			// Update the board name if provided
 			if (board_id && name) {
-				await updateBoardById(board_id, name);
+				updatedBoard = await updateBoardById(board_id, name);
 			}
 
-			// Handle deleted subtasks
+			// Handle deleted columns
 			if (columnsToDelete.length > 0) {
 				for (const column_id of columnsToDelete) {
 					await removeColumnsById(column_id);
 				}
 			}
 
-			// Handle new subtasks
+			// Handle new columns
 			if (columnsToAdd.length > 0) {
 				for (const column of columnsToAdd) {
-					await insertColumn(board_id, column.name);
+					const newColumn = await insertColumn(board_id, column.name);
+					updatedColumns.push(newColumn); // Add the new column to the result
 				}
 			}
 
-			// Handle edited subtasks
+			// Handle edited columns
 			if (columnsToEdit.length > 0) {
 				for (const column of columnsToEdit) {
-					await updateColumnNameById(column.column_id, column.name);
+					const updatedColumn = await updateColumnNameById(
+						column.column_id,
+						column.name
+					);
+					updatedColumns.push(updatedColumn); // Add the updated column to the result
 				}
 			}
+
+			// Fetch remaining columns
+			const existingColumns = await selectColumnsByBoardId(board_id);
+			updatedColumns.push(
+				...existingColumns.filter(
+					(col) =>
+						!columnsToDelete.includes(col.column_id) &&
+						!updatedColumns.find(
+							(updated) => updated.column_id === col.column_id
+						)
+				)
+			);
 
 			return {
 				type: 'BOARD_INFO_UPDATED',
+				board: updatedBoard ? updatedBoard : {},
+				columns: updatedColumns ? updatedColumns : {},
 			};
 		} catch (error) {
-			return {
-				type: 'ERROR',
-				message: error.message || 'An unexpected error occurred',
-			};
+			console.error('Error updating board info:', error);
+			throw error;
 		}
 	},
 };
