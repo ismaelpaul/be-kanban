@@ -68,8 +68,6 @@ exports.insertBoard = (team_id, name) => {
 			name,
 		])
 		.then((result) => {
-			console.log(result.rows[0], '<<<< result.rows[0]');
-
 			return result.rows[0];
 		});
 };
