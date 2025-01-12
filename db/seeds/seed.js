@@ -1,10 +1,11 @@
 const format = require('pg-format');
 const db = require('../connection');
 const { formatData } = require('./utils');
-const { hashPassword } = require('../../utils/helper');
+const { hashPassword, fetchAvatarUrl } = require('../../utils/helper');
 
 const seed = async ({ data }) => {
 	await db.query(`DROP TABLE IF EXISTS subtasks`);
+	await db.query(`DROP TABLE IF EXISTS comments`);
 	await db.query(`DROP TABLE IF EXISTS tasks`);
 	await db.query(`DROP TABLE IF EXISTS columns`);
 	await db.query(`DROP TABLE IF EXISTS boards`);
@@ -57,6 +58,14 @@ const seed = async ({ data }) => {
     	created_at TIMESTAMP DEFAULT NOW()
   	);`);
 
+	await db.query(`CREATE TABLE comments (
+		comment_id SERIAL PRIMARY KEY,
+		task_id INT NOT NULL REFERENCES tasks(task_id) ON DELETE CASCADE,
+		user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+		comment TEXT NOT NULL,
+		created_at TIMESTAMP DEFAULT NOW()
+	);`);
+
 	await db.query(`CREATE TABLE subtasks (
     	subtask_id SERIAL PRIMARY KEY,
     	task_id INT REFERENCES tasks(task_id),
@@ -64,6 +73,11 @@ const seed = async ({ data }) => {
     	is_completed BOOLEAN NOT NULL,
     	created_at TIMESTAMP DEFAULT NOW()
   	);`);
+
+	const firstName = 'Admin';
+	const lastName = 'User';
+
+	const avatarUrl = await fetchAvatarUrl(firstName, lastName);
 
 	const newUserQuery = `
   		INSERT INTO users (first_name, last_name, email, password, avatar)
@@ -73,10 +87,10 @@ const seed = async ({ data }) => {
 
 	const newUserValues = [
 		'Admin',
-		'Admin',
+		'User',
 		'admin@admin.com',
 		hashPassword('password'),
-		'https://i.ibb.co/4pDNDk1/avatar.png',
+		avatarUrl,
 	];
 
 	const newUserResult = await db.query(newUserQuery, newUserValues);
