@@ -11,11 +11,11 @@ exports.selectUserById = (user_id) => {
 		});
 };
 
-exports.insertUser = (first_name, last_name, email, password) => {
+exports.insertUser = (first_name, last_name, email, password, avatar) => {
 	return db
 		.query(
-			`INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING users.user_id, users.first_name, users.last_name, users.email, users.avatar;`,
-			[first_name, last_name, email, password]
+			`INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING users.user_id, users.first_name, users.last_name, users.email, users.avatar;`,
+			[first_name, last_name, email, password, avatar]
 		)
 		.then((result) => {
 			return result.rows[0];
