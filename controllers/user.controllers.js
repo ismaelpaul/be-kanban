@@ -10,6 +10,7 @@ const {
 	hashPassword,
 	generateToken,
 	comparePassword,
+	fetchAvatarUrl,
 } = require('../utils/helper');
 
 exports.getUser = (req, res, next) => {
@@ -97,28 +98,32 @@ exports.registerUser = async (req, res) => {
 	const { firstName, lastName, email, password } = req.body;
 
 	const existingUser = await checkUserExistsByEmail(email);
+	const avatarUrl = await fetchAvatarUrl(firstName, lastName);
 
 	if (!existingUser.userExists) {
 		const hashedPassword = hashPassword(password);
-		insertUser(firstName, lastName, email, hashedPassword).then((user) => {
-			if (user) {
-				const name = 'New Board';
-				insertBoard(user.user_id, name);
-				const token = generateToken(user.user_id);
 
-				res.cookie('token', token, {
-					path: '/',
-					httpOnly: true,
-					expires: new Date(Date.now() + 1000 * 86400), //1 day,
-					sameSite: 'none',
-					secure: true,
-				});
+		insertUser(firstName, lastName, email, hashedPassword, avatarUrl).then(
+			(user) => {
+				if (user) {
+					const name = 'New Board';
+					insertBoard(0, name);
+					const token = generateToken(user.user_id);
 
-				res.status(201).send(user);
-			} else {
-				res.status(400).send('Invalid user data');
+					res.cookie('token', token, {
+						path: '/',
+						httpOnly: true,
+						expires: new Date(Date.now() + 1000 * 86400), //1 day,
+						sameSite: 'none',
+						secure: true,
+					});
+
+					res.status(201).send(user);
+				} else {
+					res.status(400).send('Invalid user data');
+				}
 			}
-		});
+		);
 	} else {
 		res.status(400).send('User has already been registered');
 	}
