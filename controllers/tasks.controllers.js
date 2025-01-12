@@ -7,6 +7,7 @@ const {
 	updateTaskPositionAndStatusByTaskId,
 	updateTaskByTaskId,
 	updateTaskCompletion,
+	selectTaskCommentsByTaskId,
 } = require('../models/tasks.models');
 
 exports.getTasks = (req, res, next) => {
@@ -120,6 +121,16 @@ exports.updateCompletionTask = (req, res, next) => {
 	updateTaskCompletion(is_completed, task_id)
 		.then((task) => {
 			res.status(200).send(task);
+		})
+		.catch(next);
+};
+
+exports.getTaskCommentsByTaskId = async (req, res, next) => {
+	const { task_id } = req.params;
+
+	await selectTaskCommentsByTaskId(task_id)
+		.then((comments) => {
+			res.status(200).send(comments);
 		})
 		.catch(next);
 };
