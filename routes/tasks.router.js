@@ -8,6 +8,7 @@ const {
 	patchTaskPositionAndStatusByTaskId,
 	patchTaskByTaskId,
 	updateCompletionTask,
+	getTaskCommentsByTaskId,
 } = require('../controllers/tasks.controllers');
 
 const tasksRouter = express.Router();
@@ -26,5 +27,7 @@ tasksRouter
 	.route('/:task_id/subtasks')
 	.get(getSubtasksByTaskId)
 	.post(addNewSubtaskByTaskId);
+
+tasksRouter.route('/:task_id/comments').get(getTaskCommentsByTaskId);
 
 module.exports = tasksRouter;
