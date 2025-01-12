@@ -165,3 +165,43 @@ exports.updateTaskCompletion = (is_completed, task_id) => {
 			return result.rows;
 		});
 };
+
+exports.insertTaskComment = async (task_id, user_id, comment) => {
+	return await db
+		.query(
+			`INSERT INTO comments (task_id, user_id, comment)
+  			VALUES ($1, $2, $3)
+  			RETURNING *;`,
+			[task_id, user_id, comment]
+		)
+		.then((result) => {
+			return result.rows[0];
+		});
+};
+
+exports.selectTaskCommentsByTaskId = async (task_id) => {
+	return await db
+		.query(
+			`SELECT 
+    comments.comment_id,
+    comments.task_id,
+    comments.comment,
+    comments.created_at,
+    users.user_id,
+    users.first_name,
+    users.last_name,
+    users.avatar
+FROM 
+    comments
+JOIN 
+    users ON comments.user_id = users.user_id
+WHERE 
+    comments.task_id = $1
+	ORDER BY 
+        comments.created_at DESC;;`,
+			[task_id]
+		)
+		.then((result) => {
+			return result.rows;
+		});
+};
