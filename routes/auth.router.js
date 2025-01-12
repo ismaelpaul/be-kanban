@@ -36,7 +36,7 @@ authRouter
 			});
 
 			// Perform redirection
-			return res.redirect(`${CLIENT_URL}/boards`);
+			return res.redirect(`${CLIENT_URL}/dashboard`);
 		} catch (error) {
 			console.error(error);
 			return res.status(500).send({ error: error.message });
@@ -68,7 +68,7 @@ authRouter
 			});
 
 			// Perform redirection
-			return res.redirect(`${CLIENT_URL}/boards`);
+			return res.redirect(`${CLIENT_URL}/dashboard`);
 		} catch (error) {
 			console.error('Error in GitHub callback route:', error);
 			if (!res.headersSent) {
