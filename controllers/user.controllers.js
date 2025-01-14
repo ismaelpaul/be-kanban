@@ -1,6 +1,10 @@
 const { checkUserExistsByEmail } = require('../models/auth.models');
 const { insertBoard } = require('../models/boards.models');
 const {
+	insertTeam,
+	insertTeamMembersIntoTeam,
+} = require('../models/teams.models');
+const {
 	insertUser,
 	checkEmailExists,
 	selectUserById,
@@ -97,35 +101,49 @@ exports.logoutUser = (req, res) => {
 exports.registerUser = async (req, res) => {
 	const { firstName, lastName, email, password } = req.body;
 
-	const existingUser = await checkUserExistsByEmail(email);
-	const avatarUrl = await fetchAvatarUrl(firstName, lastName);
+	try {
+		const existingUser = await checkUserExistsByEmail(email);
+		const avatarUrl = await fetchAvatarUrl(firstName, lastName);
 
-	if (!existingUser.userExists) {
-		const hashedPassword = hashPassword(password);
+		if (!existingUser.userExists) {
+			const hashedPassword = hashPassword(password);
 
-		insertUser(firstName, lastName, email, hashedPassword, avatarUrl).then(
-			(user) => {
-				if (user) {
-					const name = 'New Board';
-					insertBoard(0, name);
-					const token = generateToken(user.user_id);
+			const user = await insertUser(
+				firstName,
+				lastName,
+				email,
+				hashedPassword,
+				avatarUrl
+			);
 
-					res.cookie('token', token, {
-						path: '/',
-						httpOnly: true,
-						expires: new Date(Date.now() + 1000 * 86400), //1 day,
-						sameSite: 'none',
-						secure: true,
-					});
+			if (user) {
+				const newTeam = await insertTeam('Private Team');
 
-					res.status(201).send(user);
-				} else {
-					res.status(400).send('Invalid user data');
+				if (newTeam) {
+					await insertTeamMembersIntoTeam(user.user_id, newTeam.team_id);
+					await insertBoard(newTeam.team_id, 'New Board');
 				}
+
+				const token = generateToken(user.user_id);
+
+				res.cookie('token', token, {
+					path: '/',
+					httpOnly: true,
+					expires: new Date(Date.now() + 1000 * 86400), // 1 day
+					sameSite: 'none',
+					secure: true,
+				});
+
+				return res.status(201).send(user);
+			} else {
+				return res.status(400).send('Invalid user data');
 			}
-		);
-	} else {
-		res.status(400).send('User has already been registered');
+		} else {
+			return res.status(400).send('User has already been registered');
+		}
+	} catch (error) {
+		console.error('Error during user registration:', error);
+		return res.status(500).send('Internal Server Error');
 	}
 };
 
