@@ -198,7 +198,7 @@ JOIN
 WHERE 
     comments.task_id = $1
 	ORDER BY 
-        comments.created_at DESC;;`,
+        comments.created_at ASC;`,
 			[task_id]
 		)
 		.then((result) => {
