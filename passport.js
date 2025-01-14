@@ -4,6 +4,10 @@ const {
 	insertGoogleOrGithubUser,
 } = require('./models/auth.models');
 const { insertBoard } = require('./models/boards.models');
+const {
+	insertTeamMembersIntoTeam,
+	insertTeam,
+} = require('./models/teams.models');
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
@@ -33,9 +37,11 @@ passport.use(
 
 					const newUser = await insertGoogleOrGithubUser(user);
 
-					if (newUser) {
-						const boardName = 'New Board';
-						await insertBoard(newUser.user_id, boardName);
+					const newTeam = await insertTeam('Private Team');
+
+					if (newUser && newTeam) {
+						await insertTeamMembersIntoTeam(newUser.user_id, newTeam.team_id);
+						await insertBoard(newTeam.team_id, 'New Board');
 					}
 
 					return done(null, newUser);
@@ -89,11 +95,12 @@ passport.use(
 						};
 
 						const newUser = await insertGoogleOrGithubUser(user);
-						if (newUser) {
-							const boardName = 'New Board';
-							await insertBoard(newUser.user_id, boardName);
-						}
+						const newTeam = await insertTeam('Private Team');
 
+						if (newUser && newTeam) {
+							await insertTeamMembersIntoTeam(newUser.user_id, newTeam.team_id);
+							await insertBoard(newTeam.team_id, 'New Board');
+						}
 						return done(null, newUser);
 					}
 				} else {
