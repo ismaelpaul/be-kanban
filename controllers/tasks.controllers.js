@@ -130,7 +130,7 @@ exports.getTaskCommentsByTaskId = async (req, res, next) => {
 
 	await selectTaskCommentsByTaskId(task_id)
 		.then((comments) => {
-			res.status(200).send(comments);
+			res.status(200).send({ comments });
 		})
 		.catch(next);
 };
