@@ -43,3 +43,48 @@ exports.getTeamIdByUserId = async (user_id) => {
 		user_id,
 	]);
 };
+
+exports.insertTeam = async (name) => {
+	return await db
+		.query(
+			`
+  INSERT INTO teams (name)
+  VALUES ($1)
+  RETURNING *;
+`,
+			[name]
+		)
+		.then((result) => {
+			console.log(result.rows[0]);
+
+			return result.rows[0];
+		});
+};
+
+exports.insertTeamMembersIntoTeam = async (
+	user_id,
+	team_id,
+	role = 'member'
+) => {
+	return await db
+		.query(
+			`WITH check_user AS (
+                SELECT * 
+                FROM team_members 
+                WHERE user_id = $1 AND team_id = $2
+            ),
+            insert_user AS (
+                INSERT INTO team_members (user_id, team_id, role)
+                SELECT $1, $2, $3
+                WHERE NOT EXISTS (SELECT 1 FROM check_user)
+                RETURNING *
+            )
+            SELECT t.* 
+            FROM teams t
+            WHERE t.team_id = $2;`,
+			[user_id, team_id, role]
+		)
+		.then((result) => {
+			return result.rows[0];
+		});
+};
