@@ -99,7 +99,7 @@ const seed = async ({ data }) => {
 	// Insert a new team into the teams table
 	const insertTeamResult = await db.query(`
     	INSERT INTO teams (name)
-    	VALUES ('Digital Team')
+    	VALUES ('Private Team')
     	RETURNING team_id;
 	`);
 
