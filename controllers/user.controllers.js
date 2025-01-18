@@ -120,7 +120,11 @@ exports.registerUser = async (req, res) => {
 				const newTeam = await insertTeam('Private Team');
 
 				if (newTeam) {
-					await insertTeamMembersIntoTeam(user.user_id, newTeam.team_id);
+					await insertTeamMembersIntoTeam(
+						user.user_id,
+						newTeam.team_id,
+						(role = 'admin')
+					);
 					await insertBoard(newTeam.team_id, 'New Board');
 				}
 
