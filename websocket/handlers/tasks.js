@@ -9,6 +9,7 @@ const {
 	removeTaskById,
 	updateTaskByTaskId,
 	updateTaskPositionAndStatusByTaskId,
+	insertTaskComment,
 } = require('../../models/tasks.models');
 
 module.exports = {
@@ -146,6 +147,23 @@ module.exports = {
 				type: 'TASK_INFO_UPDATED',
 				newColumn_id: newColumn_id,
 				column_id: column_id,
+			};
+		} catch (error) {
+			return {
+				type: 'ERROR',
+				message: error.message || 'An unexpected error occurred',
+			};
+		}
+	},
+	ADD_TASK_COMMENT: async (payload) => {
+		const { comment, task_id, user_id } = payload;
+
+		try {
+			const newComment = await insertTaskComment(task_id, user_id, comment);
+
+			return {
+				type: 'COMMENT_ADDED',
+				comment: newComment,
 			};
 		} catch (error) {
 			return {
