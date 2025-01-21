@@ -11,7 +11,9 @@ exports.selectTeamByUserId = async (user_id) => {
             JOIN 
                 teams ON team_members.team_id = teams.team_id
             WHERE 
-                team_members.user_id = $1;`,
+                team_members.user_id = $1
+			ORDER BY 
+                teams.team_id;`,
 			[user_id]
 		)
 		.then((result) => {
@@ -83,6 +85,22 @@ exports.insertTeamMembersIntoTeam = async (
             FROM teams t
             WHERE t.team_id = $2;`,
 			[user_id, team_id, role]
+		)
+		.then((result) => {
+			return result.rows[0];
+		});
+};
+
+exports.updateTeamNameById = async (team_id, name) => {
+	return await db
+		.query(
+			`
+  UPDATE teams
+  SET name = $2
+  WHERE team_id = $1
+  RETURNING *;
+`,
+			[team_id, name]
 		)
 		.then((result) => {
 			return result.rows[0];
