@@ -4,6 +4,7 @@ const {
 	selectBoardsByTeamId,
 	insertTeam,
 	insertTeamMembersIntoTeam,
+	updateTeamNameById,
 } = require('../models/teams.models');
 
 exports.getTeamByUserId = (req, res) => {
@@ -56,5 +57,18 @@ exports.addTeam = (req, res) => {
 			res
 				.status(500)
 				.json({ message: 'Error creating team', error: err.message });
+		});
+};
+
+exports.patchTeamNameById = (req, res) => {
+	const { team_id } = req.params;
+	const { name } = req.body;
+
+	updateTeamNameById(team_id, name)
+		.then((team) => {
+			res.status(200).send({ team });
+		})
+		.catch((err) => {
+			res.status(500).send({ message: 'Error updating team name', error: err });
 		});
 };
