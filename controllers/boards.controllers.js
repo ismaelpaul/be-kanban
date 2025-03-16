@@ -125,10 +125,10 @@ exports.addColumnsByBoardId = async (req, res, next) => {
 				.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 				.join(' ');
 
-			const insertedColumn = await insertColumn({
+			const insertedColumn = await insertColumn(
 				board_id,
-				name: columnNameCapitalised,
-			});
+				columnNameCapitalised
+			);
 			insertedColumns.push(insertedColumn);
 		}
 
