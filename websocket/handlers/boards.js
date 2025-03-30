@@ -2,6 +2,7 @@ const {
 	insertBoard,
 	updateBoardById,
 	selectColumnsByBoardId,
+	removeBoardById,
 } = require('../../models/boards.models');
 const {
 	insertColumn,
@@ -33,7 +34,7 @@ module.exports = {
 						.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 						.join(' ');
 
-					return insertColumn({ board_id, name: columnNameCapitalised });
+					return insertColumn(board_id, columnNameCapitalised);
 				});
 
 				await Promise.all(columnPromises);
@@ -110,6 +111,21 @@ module.exports = {
 			};
 		} catch (error) {
 			console.error('Error updating board info:', error);
+			throw error;
+		}
+	},
+	DELETE_BOARD: async (payload) => {
+		const { board_id } = payload;
+
+		try {
+			const deletedBoard = await removeBoardById(board_id);
+
+			return {
+				type: 'BOARD_DELETED',
+				deletedBoard,
+			};
+		} catch (error) {
+			console.error('Error deleting board:', error);
 			throw error;
 		}
 	},
