@@ -57,8 +57,6 @@ exports.insertTeam = async (name) => {
 			[name]
 		)
 		.then((result) => {
-			console.log(result.rows[0]);
-
 			return result.rows[0];
 		});
 };
@@ -101,6 +99,36 @@ exports.updateTeamNameById = async (team_id, name) => {
   RETURNING *;
 `,
 			[team_id, name]
+		)
+		.then((result) => {
+			return result.rows[0];
+		});
+};
+
+exports.checkTeamMember = async (user_id, team_id) => {
+	return await db
+		.query(
+			`
+  SELECT * 
+  FROM team_members 
+  WHERE user_id = $1 AND team_id = $2;
+`,
+			[user_id, team_id]
+		)
+		.then((result) => {
+			return result.rows[0];
+		});
+};
+
+exports.selectTeamNameById = async (team_id) => {
+	return await db
+		.query(
+			`
+  			SELECT name 
+  			FROM teams 
+  			WHERE team_id = $1;
+			`,
+			[team_id]
 		)
 		.then((result) => {
 			return result.rows[0];
