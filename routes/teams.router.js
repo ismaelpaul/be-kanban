@@ -4,6 +4,7 @@ const {
 	getBoardsByTeamId,
 	addTeam,
 	patchTeamNameById,
+	addTeamInvitation,
 } = require('../controllers/teams.controller');
 const { isAuthenticated } = require('../middleware/auth.middleware');
 
@@ -13,5 +14,8 @@ teamsRouter.route('/').get(isAuthenticated, getTeamByUserId);
 teamsRouter.route('/:team_id/boards').get(getBoardsByTeamId);
 teamsRouter.route('/').post(isAuthenticated, addTeam);
 teamsRouter.route('/:team_id').patch(patchTeamNameById);
+teamsRouter
+	.route('/:team_id/invitations')
+	.post(isAuthenticated, addTeamInvitation);
 
 module.exports = teamsRouter;
