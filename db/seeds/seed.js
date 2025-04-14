@@ -9,6 +9,7 @@ const seed = async ({ data }) => {
 	await db.query(`DROP TABLE IF EXISTS tasks`);
 	await db.query(`DROP TABLE IF EXISTS columns`);
 	await db.query(`DROP TABLE IF EXISTS boards`);
+	await db.query(`DROP TABLE IF EXISTS invitations;`);
 	await db.query(`DROP TABLE IF EXISTS team_members`);
 	await db.query(`DROP TABLE IF EXISTS teams`);
 	await db.query(`DROP TABLE IF EXISTS users`);
@@ -34,6 +35,20 @@ const seed = async ({ data }) => {
     	role VARCHAR(20) DEFAULT 'member',
 		UNIQUE (user_id, team_id)
 	);`);
+
+	await db.query(`CREATE TABLE invitations (
+        id SERIAL PRIMARY KEY,
+        team_id INTEGER NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE, -- FK to teams table
+        invited_email VARCHAR(255) NOT NULL,
+        inviting_user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE, -- FK to users table (inviter)
+        token VARCHAR(64) UNIQUE NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'pending',  -- 'pending', 'accepted', 'declined', 'expired'
+        expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        -- Optional: Removed the complex unique constraint for simplicity, can be added back if needed
+        -- UNIQUE (team_id, invited_email, status) WHERE (status = 'pending')
+    );`);
 
 	await db.query(`CREATE TABLE boards (
 		board_id SERIAL PRIMARY KEY,
