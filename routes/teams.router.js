@@ -5,7 +5,7 @@ const {
 	addTeam,
 	patchTeamNameById,
 	addTeamInvitation,
-} = require('../controllers/teams.controller');
+} = require('../controllers/teams.controllers');
 const { isAuthenticated } = require('../middleware/auth.middleware');
 
 const teamsRouter = express.Router();
