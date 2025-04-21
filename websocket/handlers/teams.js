@@ -4,8 +4,6 @@ module.exports = {
 	UPDATE_TEAM: async (payload) => {
 		const { team_id, name } = payload.team;
 
-		console.log(team_id, name);
-
 		try {
 			const updatedTeam = await updateTeamNameById(team_id, name);
 
