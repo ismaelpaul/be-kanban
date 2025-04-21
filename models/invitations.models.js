@@ -29,3 +29,18 @@ exports.insertTeamInvitation = async (
 			return result.rows[0];
 		});
 };
+
+exports.selectInvitationByToken = async (token) => {
+	return db
+		.query(`SELECT * FROM invitations WHERE token = $1`, [token])
+		.then((result) => {
+			return result.rows[0];
+		});
+};
+
+exports.updateInvitationStatus = async (token, status) => {
+	return db.query(
+		`UPDATE invitations SET status = $1 WHERE token = $2 RETURNING *`,
+		[status, token]
+	);
+};
