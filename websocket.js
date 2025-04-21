@@ -75,9 +75,18 @@ module.exports = (server) => {
 				teamConnections.get(team_id).add(ws);
 
 				ws.on('close', () => {
-					teamConnections.get(team_id).delete(ws);
-					if (teamConnections.get(team_id).size === 0) {
-						teamConnections.delete(team_id);
+					const team_id = ws.user.team_id;
+					const teamSet = teamConnections.get(team_id);
+
+					if (teamSet) {
+						teamSet.delete(ws);
+						if (teamSet.size === 0) {
+							teamConnections.delete(team_id);
+						}
+					} else {
+						console.warn(
+							`Team ${team_id} not found during WebSocket close cleanup.`
+						);
 					}
 				});
 			}
