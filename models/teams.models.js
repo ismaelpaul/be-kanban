@@ -134,3 +134,18 @@ exports.selectTeamNameById = async (team_id) => {
 			return result.rows[0];
 		});
 };
+
+exports.selectTeamById = async (team_id) => {
+	return await db
+		.query(
+			`
+  			SELECT *
+  			FROM teams 
+  			WHERE team_id = $1;
+			`,
+			[team_id]
+		)
+		.then((result) => {
+			return result.rows[0];
+		});
+};
